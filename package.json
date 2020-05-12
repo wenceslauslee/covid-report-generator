@@ -20,7 +20,7 @@
     "mocha": "^7.1.2"
   },
   "scripts": {
-    "style": "eslint src test",
+    "style": "eslint src",
     "test": "mocha"
   }
 }

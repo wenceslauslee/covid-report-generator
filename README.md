@@ -14,6 +14,8 @@ Code requires [Node.js](https://nodejs.org/) v12+ to build.
 
 ```sh
 $ cd covid-report-generator
+$ npm install
+$ node ./src/main.js
 ```
 
 ### Todos
