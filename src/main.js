@@ -1,25 +1,62 @@
 const countyReader = require('./reader/county-reader');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
+const covidPostalCountyDb = require('./db/covid-postal-county-db');
 const pcReader = require('./reader/postal-code-reader');
 const _ = require('underscore');
 
 async function main() {
   console.log('Starting to parse...');
 
-  // const postalCodes = await pcReader.parse();
+  const countyToPostalCodes = await pcReader.parse();
   const countyRawDataOld = await countyReader.parse('data/us-counties-old.csv');
   const countyRawDataNew = await countyReader.parse('data/us-counties.csv');
 
   const updates = [];
 
+  /*
+  // Commented out due to not needed normally
+  var missedCount = 0;
+  _.each(countyToPostalCodes, (val, key) => {
+    if (!Object.prototype.hasOwnProperty.call(countyRawDataNew, key)) {
+      console.log(key);
+      missedCount += 1;
+    }
+  });
+  console.log(`${missedCount} out of ${Object.keys(countyToPostalCodes).length} counties are missing.`);
+
+  const postalCodeEntries = [];
+  _.each(countyToPostalCodes, (val, key) => {
+    _.each(val, v => {
+      postalCodeEntries.push({
+        postalCode: v,
+        countyStateName: key
+      });
+    });
+  });
+  console.log(`Found ${postalCodeEntries.length} supported postal codes`);
+  const pseChunks = _.chunk(postalCodeEntries, 25);
+  const pseChunkLength = pseChunks.length;
+  for (var index in pseChunks) {
+    await covidPostalCountyDb.batchWrite(pseChunks[index]);
+    console.log(`Completed ${Number(index) + 1} out of ${pseChunkLength} chunks.`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  */
+
   _.each(countyRawDataNew, (val, key) => {
     if (!Object.prototype.hasOwnProperty.call(countyRawDataOld, key)) {
-      updates.push(val);
+      _.each(val, (valI, keyI) => updates.push(valI));
     } else {
-      const oldVal = countyRawDataOld[key];
-      if (val.cases !== oldVal.cases || val.deaths !== oldVal.deaths) {
-        updates.push(val);
-      }
+      _.each(val, (valI, keyI) => {
+        if (!Object.prototype.hasOwnProperty.call(countyRawDataOld[key], keyI)) {
+          updates.push(valI);
+        } else {
+          const oldVal = countyRawDataOld[key][keyI];
+          if (valI.cases !== oldVal.cases || valI.deaths !== oldVal.deaths) {
+            updates.push(valI);
+          }
+        }
+      });
     }
   });
 

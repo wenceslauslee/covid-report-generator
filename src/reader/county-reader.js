@@ -18,13 +18,17 @@ function parse(filepath) {
           throw Error('Data is malformed');
         }
 
-        const dataKey = `${data.county}|${data.state}|${data.date}`;
-        if (Object.prototype.hasOwnProperty.call(results, dataKey)) {
-          console.log(dataKey);
+        const dataKey = `${data.county}|${data.state}`;
+        if (!Object.prototype.hasOwnProperty.call(results, dataKey)) {
+          results[dataKey] = {};
+        }
+
+        if (Object.prototype.hasOwnProperty.call(results[dataKey], data.date)) {
+          console.log(`${dataKey}|${data.date}`);
           throw Error('Data is duplicated');
         }
 
-        results[dataKey] = data;
+        results[dataKey][data.date] = data;
       })
       .on('end', () => {
         console.log(`Completed parsing ${results.length} rows of county data.`);
