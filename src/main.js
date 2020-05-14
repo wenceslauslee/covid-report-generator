@@ -1,7 +1,9 @@
 const countyReader = require('./reader/county-reader');
+const covidCountyDb = require('./db/covid-county-db');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
 const covidPostalCountyDb = require('./db/covid-postal-county-db');
 const pcReader = require('./reader/postal-code-reader');
+const states = require('us-state-codes');
 const _ = require('underscore');
 
 async function main() {
@@ -64,15 +66,58 @@ async function main() {
   const chunks = _.chunk(updates, 25);
   const chunkLength = chunks.length;
   for (var index in chunks) {
-    // await covidCountyRawDb.batchWrite(chunks[index]);
+    await covidCountyRawDb.batchWrite(chunks[index]);
     console.log(`Completed ${Number(index) + 1} out of ${chunkLength} chunks.`);
-    // await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  const date = '2020-05-12';
+  const yesterdayDate = '2020-05-11';
+  const reportResults = [];
+  _.each(countyRawDataNew, (val, key) => {
+    if (!Object.prototype.hasOwnProperty.call(val, date) ||
+      !Object.prototype.hasOwnProperty.call(val, yesterdayDate)) {
+      return;
+    }
+    const splits = key.split('|');
+    const county = splits[0];
+    const stateFull = splits[1];
+    const stateShort = states.getStateCodeByStateName(stateFull);
+
+    reportResults.push({
+      countyStateName: key,
+      stateFull: stateFull,
+      stateShort: stateShort,
+      detailedInfo: {
+        activeChange: val[date].cases - val[yesterdayDate].cases,
+        activeCount: val[date].cases,
+        deathChange: val[date].deaths - val[yesterdayDate].deaths,
+        deathCount: val[date].deaths
+      }
+    });
+  });
+
+  console.log(`Found ${reportResults.length} county reports`);
+  const reportChunks = _.chunk(reportResults, 25);
+  const reportChunkLength = reportChunks.length;
+  for (var index in reportChunks) {
+    await covidCountyDb.batchWrite(reportChunks[index]);
+    console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} report chunks.`);
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
 }
 
 main();
 
 /*
+cd ../covid-19-data &&
+git pull origin &&
+cd ../covid-report-generator &&
+mv ./data/us-counties-old.csv ./data/us-counties-temp.csv &&
+mv ./data/us-counties.csv ./data/us-counties-old.csv &&
+cp ../covid-19-data/us-counties.csv ./data/us-counties.csv &&
+rm -f ./data/us-counties-temp.csv &&
+node ./src/main.js &&
 mv ./data/us-counties-old.csv ./data/us-counties-temp.csv &&
 mv ./data/us-counties.csv ./data/us-counties-old.csv &&
 cp ../covid-19-data/us-counties.csv ./data/us-counties.csv &&

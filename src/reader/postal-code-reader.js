@@ -27,7 +27,7 @@ function parse() {
         }
       })
       .on('end', () => {
-        console.log(`Completed parsing ${results.length} rows of postal code data.`);
+        console.log(`Completed parsing ${Object.keys(results).length} rows of postal code data.`);
         resolve(results);
       })
       .on('error', error => {

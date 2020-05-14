@@ -31,7 +31,7 @@ function parse(filepath) {
         results[dataKey][data.date] = data;
       })
       .on('end', () => {
-        console.log(`Completed parsing ${results.length} rows of county data.`);
+        console.log(`Completed parsing ${Object.keys(results).length} rows of county data.`);
         resolve(results);
       })
       .on('error', error => {
