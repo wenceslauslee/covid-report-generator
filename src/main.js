@@ -3,7 +3,7 @@ const covidCountyDb = require('./db/covid-county-db');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
 const covidPostalCountyDb = require('./db/covid-postal-county-db');
 const pcReader = require('./reader/postal-code-reader');
-const states = require('us-state-codes');
+const processor = require('./processor');
 const _ = require('underscore');
 
 async function main() {
@@ -71,31 +71,7 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  const date = '2020-05-12';
-  const yesterdayDate = '2020-05-11';
-  const reportResults = [];
-  _.each(countyRawDataNew, (val, key) => {
-    if (!Object.prototype.hasOwnProperty.call(val, date) ||
-      !Object.prototype.hasOwnProperty.call(val, yesterdayDate)) {
-      return;
-    }
-    const splits = key.split('|');
-    const county = splits[0];
-    const stateFull = splits[1];
-    const stateShort = states.getStateCodeByStateName(stateFull);
-
-    reportResults.push({
-      countyStateName: key,
-      stateFull: stateFull,
-      stateShort: stateShort,
-      detailedInfo: {
-        activeChange: val[date].cases - val[yesterdayDate].cases,
-        activeCount: val[date].cases,
-        deathChange: val[date].deaths - val[yesterdayDate].deaths,
-        deathCount: val[date].deaths
-      }
-    });
-  });
+  const reportResults = processor.getMostRecentUpdates(countyRawDataNew);
 
   console.log(`Found ${reportResults.length} county reports`);
   const reportChunks = _.chunk(reportResults, 25);
