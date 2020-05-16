@@ -16,4 +16,39 @@ describe('processor', () => {
       assert.strictEqual(pastDays[150], '2020-01-01');
     });
   });
+
+  describe('getUpToNthRecentUpdate', () => {
+    it(`should return correct values`, () => {
+      const pastResults = {
+        'Middlesex|MA': {
+          '2020-05-30': 'a1',
+          '2020-05-29': 'a2',
+          '2020-05-28': 'a3'
+        },
+        'Boston|MA': {
+          '2020-05-30': 'a1',
+          '2020-05-29': 'a2'
+        }
+      };
+      const pastDays = ['2020-05-30', '2020-05-29', '2020-05-28', '2020-05-27'];
+
+      var results = processor.getUpToNthRecentUpdate(pastResults['Middlesex|MA'], pastDays, 1);
+
+      assert.strictEqual(results.length, 1);
+      assert.strictEqual(results[0], 'a1');
+
+      results = processor.getUpToNthRecentUpdate(pastResults['Middlesex|MA'], pastDays, 5);
+
+      assert.strictEqual(results.length, 3);
+      assert.strictEqual(results[0], 'a1');
+      assert.strictEqual(results[1], 'a2');
+      assert.strictEqual(results[2], 'a3');
+
+      results = processor.getUpToNthRecentUpdate(pastResults['Boston|MA'], pastDays, 3);
+
+      assert.strictEqual(results.length, 2);
+      assert.strictEqual(results[0], 'a1');
+      assert.strictEqual(results[1], 'a2');
+    });
+  });
 });
