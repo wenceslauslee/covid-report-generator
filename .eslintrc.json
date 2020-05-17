@@ -4,7 +4,8 @@
       "semi": [ 2, "always" ],
       "max-len": [ 2, { "code": 120 } ],
       "space-before-function-paren": [ 0, "never" ],
-      "key-spacing": [ 2, { "afterColon": true } ]
+      "key-spacing": [ 2, { "afterColon": true } ],
+      "no-redeclare": "off"
     },
     "env": {
       "commonjs": true,

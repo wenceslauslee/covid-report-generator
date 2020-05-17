@@ -52,9 +52,9 @@ function getMostRecentUpdate(countyStateName, pastResults, pastDays, rankings) {
       stateFull: stateFull,
       stateShort: stateShort,
       detailedInfo: {
-        activeCount: results[0].cases,
+        activeCount: parseInt(results[0].cases),
         activeRank: rankings.caseRankings[countyStateName],
-        deathCount: results[0].deaths,
+        deathCount: parseInt(results[0].deaths),
         deathRank: rankings.deathRankings[countyStateName]
       }
     };
@@ -68,11 +68,11 @@ function getMostRecentUpdate(countyStateName, pastResults, pastDays, rankings) {
     stateFull: stateFull,
     stateShort: stateShort,
     detailedInfo: {
-      activeChange: results[0].cases - results[1].cases,
-      activeCount: results[0].cases,
+      activeChange: parseInt(results[0].cases) - parseInt(results[1].cases),
+      activeCount: parseInt(results[0].cases),
       activeRank: rankings.caseRankings[countyStateName],
-      deathChange: results[0].deaths - results[1].deaths,
-      deathCount: results[0].deaths,
+      deathChange: parseInt(results[0].deaths) - parseInt(results[1].deaths),
+      deathCount: parseInt(results[0].deaths),
       deathRank: rankings.deathRankings[countyStateName]
     }
   };
@@ -124,8 +124,62 @@ function rankCounties(countyRawDataNew, pastDays) {
   };
 }
 
+function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults) {
+  var postalCodeCounts = 0;
+  var countyStateCounts = 0;
+  _.each(countyToPostalCodes, (val, key) => {
+    postalCodeCounts += val.length;
+    countyStateCounts++;
+  });
+
+  console.log(`Found ${postalCodeCounts} postal codes.`);
+  console.log(`Found ${countyStateCounts} county state name mappings.`);
+
+  const dateLogs = {};
+  const reportSet = new Set();
+  var countyStateReportCounts = 0;
+  var coveredPostalCodeCounts = 0;
+  _.each(reportResults, result => {
+    const currentDate = result.currentDate;
+    if (Object.prototype.hasOwnProperty.call(dateLogs, currentDate)) {
+      dateLogs[currentDate]++;
+    } else {
+      dateLogs[currentDate] = 1;
+    }
+    countyStateReportCounts++;
+
+    if (!result.countyStateName.startsWith('Unknown')) {
+      reportSet.add(result.countyStateName);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(countyToPostalCodes, result.countyStateName)) {
+      coveredPostalCodeCounts += countyToPostalCodes[result.countyStateName].length;
+    }
+  });
+
+  var unreachableCountyStateCounts = 0;
+  const unreachableCountyStateSet = new Set();
+  _.each(countyToPostalCodes, (val, key) => {
+    if (reportSet.has(key)) {
+      reportSet.delete(key);
+    } else {
+      unreachableCountyStateCounts += 1;
+      unreachableCountyStateSet.add(key);
+    }
+  });
+
+  console.log(`Of the ${countyStateReportCounts} county reports, date distribution are as follows.`);
+  console.log(dateLogs);
+  console.log(`This covers ${coveredPostalCodeCounts} out of ${postalCodeCounts} postal codes.`);
+  console.log(`${reportSet.size} out of ${countyStateReportCounts} county reports cannot be reached.`);
+  console.log(reportSet);
+  console.log(`${unreachableCountyStateCounts} out of ${countyStateCounts} county states have no data associated.`);
+  console.log(unreachableCountyStateSet);
+}
+
 module.exports = {
   getMostRecentUpdates: getMostRecentUpdates,
   getPastDays: getPastDays,
-  getUpToNthRecentUpdate: getUpToNthRecentUpdate
+  getUpToNthRecentUpdate: getUpToNthRecentUpdate,
+  printStatusReportOnNewUpdate: printStatusReportOnNewUpdate
 };

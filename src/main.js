@@ -1,8 +1,8 @@
 const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
-const covidPostalCountyDb = require('./db/covid-postal-county-db');
 const pcReader = require('./reader/postal-code-reader');
+const postalCodeUpdater = require('./postal-code-updater'); // eslint-disable-line no-unused-vars
 const processor = require('./processor');
 const _ = require('underscore');
 
@@ -15,35 +15,7 @@ async function main() {
 
   const updates = [];
 
-  /*
-  // Commented out due to not needed normally
-  var missedCount = 0;
-  _.each(countyToPostalCodes, (val, key) => {
-    if (!Object.prototype.hasOwnProperty.call(countyRawDataNew, key)) {
-      console.log(key);
-      missedCount += 1;
-    }
-  });
-  console.log(`${missedCount} out of ${Object.keys(countyToPostalCodes).length} counties are missing.`);
-
-  const postalCodeEntries = [];
-  _.each(countyToPostalCodes, (val, key) => {
-    _.each(val, v => {
-      postalCodeEntries.push({
-        postalCode: v,
-        countyStateName: key
-      });
-    });
-  });
-  console.log(`Found ${postalCodeEntries.length} supported postal codes`);
-  const pseChunks = _.chunk(postalCodeEntries, 25);
-  const pseChunkLength = pseChunks.length;
-  for (var index in pseChunks) {
-    await covidPostalCountyDb.batchWrite(pseChunks[index]);
-    console.log(`Completed ${Number(index) + 1} out of ${pseChunkLength} chunks.`);
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-  */
+  // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
 
   _.each(countyRawDataNew, (val, key) => {
     if (!Object.prototype.hasOwnProperty.call(countyRawDataOld, key)) {
@@ -61,41 +33,30 @@ async function main() {
       });
     }
   });
+  console.log(`Found ${updates.length} new raw updates`);
 
-  console.log(`Found ${updates.length} updates`);
   const chunks = _.chunk(updates, 25);
   const chunkLength = chunks.length;
   for (var index in chunks) {
     await covidCountyRawDb.batchWrite(chunks[index]);
-    console.log(`Completed ${Number(index) + 1} out of ${chunkLength} chunks.`);
+    console.log(`Completed ${Number(index) + 1} out of ${chunkLength} raw update chunks.`);
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  const reportResults = processor.getMostRecentUpdates(countyRawDataNew);
+  if (updates.length !== 0) {
+    const reportResults = processor.getMostRecentUpdates(countyRawDataNew);
+    console.log(`Found ${reportResults.length} updated county reports.`);
 
-  console.log(`Found ${reportResults.length} county reports`);
-  const reportChunks = _.chunk(reportResults, 25);
-  const reportChunkLength = reportChunks.length;
-  for (var index in reportChunks) {
-    await covidCountyDb.batchWrite(reportChunks[index]);
-    console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} report chunks.`);
-    await new Promise(resolve => setTimeout(resolve, 500));
+    processor.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults);
+
+    const reportChunks = _.chunk(reportResults, 25);
+    const reportChunkLength = reportChunks.length;
+    for (var index in reportChunks) {
+      await covidCountyDb.batchWrite(reportChunks[index]);
+      console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} county report chunks.`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
   }
 }
 
 main();
-
-/*
-cd ../covid-19-data &&
-git pull origin &&
-cd ../covid-report-generator &&
-mv ./data/us-counties-old.csv ./data/us-counties-temp.csv &&
-mv ./data/us-counties.csv ./data/us-counties-old.csv &&
-cp ../covid-19-data/us-counties.csv ./data/us-counties.csv &&
-rm -f ./data/us-counties-temp.csv &&
-node ./src/main.js &&
-mv ./data/us-counties-old.csv ./data/us-counties-temp.csv &&
-mv ./data/us-counties.csv ./data/us-counties-old.csv &&
-cp ../covid-19-data/us-counties.csv ./data/us-counties.csv &&
-rm -f ./data/us-counties-temp.csv
-*/
