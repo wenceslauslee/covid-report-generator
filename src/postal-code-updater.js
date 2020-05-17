@@ -14,19 +14,18 @@ async function updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew) {
   const postalCodeEntries = [];
   _.each(countyToPostalCodes, (val, key) => {
     _.each(val, v => {
-      postalCodeEntries.push({
-        postalCode: v,
-        countyStateName: key
-      });
+      v.fips = key;
+      postalCodeEntries.push(v);
     });
   });
   console.log(`Found ${postalCodeEntries.length} supported postal codes`);
+
   const pseChunks = _.chunk(postalCodeEntries, 25);
   const pseChunkLength = pseChunks.length;
   for (var index in pseChunks) {
     await covidPostalCountyDb.batchWrite(pseChunks[index]);
     console.log(`Completed ${Number(index) + 1} out of ${pseChunkLength} chunks.`);
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
 }
 

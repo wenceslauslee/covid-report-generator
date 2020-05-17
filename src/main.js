@@ -1,6 +1,8 @@
+const censusReader = require('./reader/census-reader');
 const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
+const dataChecker = require('./data-checker');
 const pcReader = require('./reader/postal-code-reader');
 const postalCodeUpdater = require('./postal-code-updater'); // eslint-disable-line no-unused-vars
 const processor = require('./processor');
@@ -12,6 +14,7 @@ async function main() {
   const countyToPostalCodes = await pcReader.parse();
   const countyRawDataOld = await countyReader.parse('data/us-counties-old.csv');
   const countyRawDataNew = await countyReader.parse('data/us-counties.csv');
+  const censusData = await censusReader.parse();
 
   const updates = [];
 
@@ -40,14 +43,14 @@ async function main() {
   for (var index in chunks) {
     await covidCountyRawDb.batchWrite(chunks[index]);
     console.log(`Completed ${Number(index) + 1} out of ${chunkLength} raw update chunks.`);
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   if (updates.length !== 0) {
-    const reportResults = processor.getMostRecentUpdates(countyRawDataNew);
+    const reportResults = processor.getMostRecentUpdates(countyRawDataNew, censusData);
     console.log(`Found ${reportResults.length} updated county reports.`);
 
-    processor.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults);
+    dataChecker.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData);
 
     const reportChunks = _.chunk(reportResults, 25);
     const reportChunkLength = reportChunks.length;

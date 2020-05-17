@@ -13,9 +13,10 @@ function batchWrite(items) {
     requests.push({
       PutRequest: {
         Item: {
-          countyId: `${item.county}|${item.state}`,
-          date: item.date,
-          countyFips: item.fips,
+          fips: item.fips,
+          countyName: item.county.toLowerCase(),
+          stateNameFull: item.state.toLowerCase(),
+          reportDate: item.date,
           caseCounts: item.cases,
           deathCounts: item.deaths
         }
