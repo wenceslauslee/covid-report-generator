@@ -22,9 +22,9 @@ function parse() {
         if (!set.has(data.zip)) {
           results[fips].push({
             postalCode: data.zip,
-            cityName: data.city.toLowerCase(),
-            stateNameShort: data.state.toLowerCase(),
-            countyName: countyName.toLowerCase()
+            cityName: data.city,
+            stateNameShort: data.state,
+            countyName: countyName
           });
           set.add(data.zip);
         }

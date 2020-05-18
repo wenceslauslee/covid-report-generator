@@ -14,8 +14,8 @@ function batchWrite(items) {
       PutRequest: {
         Item: {
           fips: item.fips,
-          countyName: item.county.toLowerCase(),
-          stateNameFull: item.state.toLowerCase(),
+          countyName: item.county,
+          stateNameFull: item.state,
           reportDate: item.date,
           caseCounts: item.cases,
           deathCounts: item.deaths

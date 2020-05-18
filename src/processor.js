@@ -44,8 +44,8 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     return {
       currentDate: results[0].date,
       fips: fips,
-      county: results[0].county.toLowerCase(),
-      stateNameFull: results[0].state.toLowerCase(),
+      countyName: results[0].county,
+      stateNameFull: results[0].state,
       detailedInfo: {
         activeCount: parseInt(results[0].cases),
         activeRank: rankings.caseRankings[fips],
@@ -60,8 +60,8 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     currentDate: results[0].date,
     pastDate: results[1].date,
     fips: fips,
-    county: results[0].county.toLowerCase(),
-    stateNameFull: results[0].state.toLowerCase(),
+    countyName: results[0].county,
+    stateNameFull: results[0].state,
     detailedInfo: {
       activeChange: parseInt(results[0].cases) - parseInt(results[1].cases),
       activeCount: parseInt(results[0].cases),

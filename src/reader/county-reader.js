@@ -24,8 +24,8 @@ function parse(filepath) {
             return;
           }
 
-          const county = data.county.toLowerCase();
-          const state = data.state.toLowerCase();
+          const county = data.county;
+          const state = data.state;
           const key = `${county}|${state}`;
 
           if (!Object.prototype.hasOwnProperty.call(customMapping, key)) {
@@ -66,17 +66,17 @@ function parse(filepath) {
 
 function getCustomMapping() {
   return {
-    'new york city|new york': [
+    'New York City|New York': [
       '36005',
       '36047',
       '36061',
       '36081',
       '36085'
     ],
-    'doña ana|new mexico': '35013',
-    'anchorage|alaska': '02020',
-    'petersburg borough|alaska': '02195',
-    'lasalle|louisiana': '22059'
+    'Doña Ana|New Mexico': '35013',
+    'Anchorage|Alaska': '02020',
+    'Petersburg Borough|Alaska': '02195',
+    'Lasalle|Louisiana': '22059'
   };
 }
 
