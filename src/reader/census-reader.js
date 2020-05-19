@@ -3,7 +3,11 @@ const fs = require('fs');
 
 function parse() {
   return new Promise((resolve, reject) => {
-    const results = {};
+    const results = {
+      county: {},
+      state: {}
+    };
+    const stateSum = {};
 
     fs.createReadStream('data/census-reduced.csv')
       .pipe(csv())
@@ -11,11 +15,22 @@ function parse() {
         const state = data.STATE;
         const county = data.COUNTY;
         const fips = state.padStart(2, '0') + county.padStart(3, '0');
+        const pop = parseInt(data.POPESTIMATE2019);
 
-        results[fips] = parseInt(data.POPESTIMATE2019);
+        results.county[fips] = pop;
+
+        const stateName = data.STNAME.toLowerCase();
+        if (!Object.prototype.hasOwnProperty.call(stateSum, stateName)) {
+          stateSum[stateName] = 0;
+        }
+
+        stateSum[stateName] += pop;
       })
       .on('end', () => {
         console.log(`Completed parsing ${Object.keys(results).length} rows of census data.`);
+
+        results.state = stateSum;
+        console.log(stateSum);
         resolve(results);
       })
       .on('error', error => {
