@@ -2,10 +2,12 @@ const censusReader = require('./reader/census-reader');
 const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
+const covidStateRawDb = require('./db/covid-state-raw-db');
 const dataChecker = require('./data-checker');
 const pcReader = require('./reader/postal-code-reader');
 const postalCodeUpdater = require('./postal-code-updater'); // eslint-disable-line no-unused-vars
 const processor = require('./processor');
+const stateReader = require('./reader/state-reader');
 const _ = require('underscore');
 
 async function main() {
@@ -14,39 +16,66 @@ async function main() {
   const countyToPostalCodes = await pcReader.parse();
   const countyRawDataOld = await countyReader.parse('data/us-counties-old.csv');
   const countyRawDataNew = await countyReader.parse('data/us-counties.csv');
+  const stateRawDataOld = await stateReader.parse('data/us-states-old.csv');
+  const stateRawDataNew = await stateReader.parse('data/us-states.csv');
   const censusData = await censusReader.parse();
-
-  const updates = [];
 
   // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
 
+  var countyUpdates = [];
   _.each(countyRawDataNew, (val, key) => {
     if (!Object.prototype.hasOwnProperty.call(countyRawDataOld, key)) {
-      _.each(val, (valI, keyI) => updates.push(valI));
+      _.each(val, (valI, keyI) => countyUpdates.push(valI));
     } else {
       _.each(val, (valI, keyI) => {
         if (!Object.prototype.hasOwnProperty.call(countyRawDataOld[key], keyI)) {
-          updates.push(valI);
+          countyUpdates.push(valI);
         } else {
           const oldVal = countyRawDataOld[key][keyI];
           if (valI.cases !== oldVal.cases || valI.deaths !== oldVal.deaths) {
-            updates.push(valI);
+            countyUpdates.push(valI);
           }
         }
       });
     }
   });
-  console.log(`Found ${updates.length} new raw updates`);
+  countyUpdates = dataChecker.deduplicateArray(countyUpdates, v => v.fips);
+  console.log(`Found ${countyUpdates.length} new raw county updates`);
 
-  const chunks = _.chunk(updates, 25);
-  const chunkLength = chunks.length;
-  for (var index in chunks) {
-    await covidCountyRawDb.batchWrite(chunks[index]);
-    console.log(`Completed ${Number(index) + 1} out of ${chunkLength} raw update chunks.`);
+  const countyChunks = _.chunk(countyUpdates, 25);
+  for (var index in countyChunks) {
+    await covidCountyRawDb.batchWrite(countyChunks[index]);
+    console.log(`Completed ${Number(index) + 1} out of ${countyChunks.length} raw county update chunks.`);
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
-  if (updates.length !== 0) {
+  const stateUpdates = [];
+  _.each(stateRawDataNew, (val, key) => {
+    if (!Object.prototype.hasOwnProperty.call(stateRawDataOld, key)) {
+      _.each(val, (valI, keyI) => stateUpdates.push(valI));
+    } else {
+      _.each(val, (valI, keyI) => {
+        if (!Object.prototype.hasOwnProperty.call(stateRawDataOld[key], keyI)) {
+          stateUpdates.push(valI);
+        } else {
+          const oldVal = stateRawDataOld[key][keyI];
+          if (valI.cases !== oldVal.cases || valI.deaths !== oldVal.deaths) {
+            stateUpdates.push(valI);
+          }
+        }
+      });
+    }
+  });
+  console.log(`Found ${stateUpdates.length} new raw state updates`);
+
+  const stateChunks = _.chunk(stateUpdates, 25);
+  for (var index in stateChunks) {
+    await covidStateRawDb.batchWrite(stateChunks[index]);
+    console.log(`Completed ${Number(index) + 1} out of ${stateChunks.length} raw update chunks.`);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  if (countyUpdates.length !== 0) {
     const reportResults = processor.getMostRecentUpdates(countyRawDataNew, censusData);
     console.log(`Found ${reportResults.length} updated county reports.`);
 

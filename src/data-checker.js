@@ -60,6 +60,22 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
   }
 }
 
+function deduplicateArray(results, fun) {
+  const set = new Set();
+  const newResults = [];
+
+  _.each(results, v => {
+    const p = fun(v);
+    if (!set.has(p)) {
+      newResults.push(v);
+      set.add(p);
+    }
+  });
+
+  return newResults;
+}
+
 module.exports = {
+  deduplicateArray: deduplicateArray,
   printStatusReportOnNewUpdate: printStatusReportOnNewUpdate
 };
