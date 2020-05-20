@@ -1,4 +1,5 @@
 const moment = require('moment');
+const removeZeros = require('remove-trailing-zeros');
 const utils = require('./utils');
 const _ = require('underscore');
 
@@ -35,7 +36,7 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
         activeRank: rankings.caseRankings[stateNameFull],
         deathCount: parseInt(results[0].deaths),
         deathRank: rankings.deathRankings[stateNameFull],
-        activePercentage: (parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2)
+        activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2))
       }
     };
   }
@@ -52,7 +53,7 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
       deathChange: parseInt(results[0].deaths) - parseInt(results[1].deaths),
       deathCount: parseInt(results[0].deaths),
       deathRank: rankings.deathRankings[stateNameFull],
-      activePercentage: (parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2)
+      activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2))
     }
   };
 }
