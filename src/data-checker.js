@@ -30,7 +30,7 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
     }
     reportSet.add(result.fips);
 
-    if (!Object.prototype.hasOwnProperty.call(censusData, result.fips)) {
+    if (!Object.prototype.hasOwnProperty.call(censusData.county, result.fips)) {
       uncoveredCensusCounts++;
     }
   });

@@ -72,9 +72,9 @@ async function main() {
 
   const stateChunks = _.chunk(stateUpdates, 25);
   for (var index in stateChunks) {
-    // await covidStateRawDb.batchWrite(stateChunks[index]);
+    await covidStateRawDb.batchWrite(stateChunks[index]);
     console.log(`Completed ${Number(index) + 1} out of ${stateChunks.length} raw update chunks.`);
-    // await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   if (countyUpdates.length !== 0) {

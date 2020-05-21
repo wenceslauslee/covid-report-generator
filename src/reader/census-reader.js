@@ -19,12 +19,10 @@ function parse() {
 
         results.county[fips] = pop;
 
-        const stateName = data.STNAME.toLowerCase();
-        if (!Object.prototype.hasOwnProperty.call(stateSum, stateName)) {
-          stateSum[stateName] = 0;
+        if (county === '0') {
+          const stateName = data.STNAME.toLowerCase();
+          stateSum[stateName] = pop;
         }
-
-        stateSum[stateName] += pop;
       })
       .on('end', () => {
         console.log(`Completed parsing ${Object.keys(results).length} rows of census data.`);
