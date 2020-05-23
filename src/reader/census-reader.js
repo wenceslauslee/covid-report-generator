@@ -28,7 +28,6 @@ function parse() {
         console.log(`Completed parsing ${Object.keys(results).length} rows of census data.`);
 
         results.state = stateSum;
-        console.log(stateSum);
         resolve(results);
       })
       .on('error', error => {

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/bin/node
 set -x
 
 cd ../covid-19-data &&

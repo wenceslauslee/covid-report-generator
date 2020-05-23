@@ -3,6 +3,7 @@ const countyProcessor = require('./county-processor');
 const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
+const covidReportWebsiteDb = require('./db/covid-report-website-db');
 const covidStateDb = require('./db/covid-state-db');
 const covidStateRawDb = require('./db/covid-state-raw-db');
 const dataChecker = require('./data-checker');
@@ -103,6 +104,16 @@ async function main() {
       console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} state report chunks.`);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
+
+    covidReportWebsiteDb.batchWrite([
+      {
+        infoKey: 'stateRanking',
+        dataValue: {
+          reportDate: reportResults[0].currentDate,
+          rankByCases: reportResults
+        }
+      }
+    ]);
   }
 }
 
