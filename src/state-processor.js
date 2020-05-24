@@ -28,12 +28,17 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
     return null;
   }
 
+  var stateNameFullProper = usStateCodes.sanitizeStateName(stateNameFull);
+  if (stateNameFullProper === null) {
+    stateNameFullProper = '-----';
+  }
+
   return {
     currentDate: results[0].date,
     pastDate: results[1].date,
     fips: results[0].fips,
     stateNameFull: stateNameFull,
-    stateNameFullProper: usStateCodes.sanitizeStateName(stateNameFull),
+    stateNameFullProper: stateNameFullProper,
     detailedInfo: {
       activeChange: parseInt(results[0].cases) - parseInt(results[1].cases),
       activeCount: parseInt(results[0].cases),

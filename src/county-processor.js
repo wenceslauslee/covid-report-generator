@@ -1,5 +1,6 @@
 const moment = require('moment');
 const removeZeros = require('remove-trailing-zeros');
+const usStateCodes = require('us-state-codes');
 const utils = require('./utils');
 const _ = require('underscore');
 
@@ -16,30 +17,23 @@ function getMostRecentUpdates(countyRawDataNew, censusData) {
     }
   });
 
-  return results;
+  var sortedResults = _.sortBy(results, r => parseInt(r.detailedInfo.activeCount));
+  sortedResults.reverse();
+
+  return sortedResults;
 }
 
 function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) {
   const results = utils.getUpToNthRecentUpdate(pastResults, pastDays, 2);
 
-  if (results.length === 0) {
+  if (results.length !== 2) {
+    console.log(`${fips} county did not have past 2 results for today.`);
     return null;
   }
 
-  if (results.length === 1) {
-    return {
-      currentDate: results[0].date,
-      fips: fips,
-      countyName: results[0].county,
-      stateNameFull: results[0].state,
-      detailedInfo: {
-        activeCount: parseInt(results[0].cases),
-        activeRank: rankings.caseRankings[fips],
-        deathCount: parseInt(results[0].deaths),
-        deathRank: rankings.deathRankings[fips],
-        activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[fips]).toFixed(2))
-      }
-    };
+  var stateNameShortProper = usStateCodes.sanitizeStateCode(results[0].state);
+  if (stateNameShortProper === null) {
+    stateNameShortProper = '--';
   }
 
   return {
@@ -48,13 +42,16 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     fips: fips,
     countyName: results[0].county,
     stateNameFull: results[0].state,
+    stateNameShortProper: stateNameShortProper,
     detailedInfo: {
       activeChange: parseInt(results[0].cases) - parseInt(results[1].cases),
       activeCount: parseInt(results[0].cases),
       activeRank: rankings.caseRankings[fips],
+      activeRankPast: rankings.caseRankingsPast[fips],
       deathChange: parseInt(results[0].deaths) - parseInt(results[1].deaths),
       deathCount: parseInt(results[0].deaths),
       deathRank: rankings.deathRankings[fips],
+      deathRankPast: rankings.deathRankingsPast[fips],
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[fips]).toFixed(2))
     }
   };
@@ -63,14 +60,19 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
 function rankCounties(countyRawDataNew, pastDays) {
   const caseRankings = {};
   const deathRankings = {};
+  const caseRankingsPast = {};
+  const deathRankingsPast = {};
 
   const array = [];
+  const arrayPast = [];
 
   _.each(countyRawDataNew, (val, key) => {
-    const result = utils.getUpToNthRecentUpdate(val, pastDays, 1);
-    if (result.length !== 0) {
-      result[0].key = key;
-      array.push(result[0]);
+    const results = utils.getUpToNthRecentUpdate(val, pastDays, 2);
+    if (results.length === 2) {
+      results[0].key = key;
+      array.push(results[0]);
+      results[1].key = key;
+      arrayPast.push(results[1]);
     }
   });
 
@@ -84,9 +86,21 @@ function rankCounties(countyRawDataNew, pastDays) {
     deathRankings[sortByDeaths[j].key] = sortByDeaths.length - j;
   }
 
+  const sortByCasesPast = _.sortBy(arrayPast, x => parseInt(x.cases));
+  for (var i = sortByCasesPast.length - 1; i >= 0; i--) {
+    caseRankingsPast[sortByCasesPast[i].key] = sortByCasesPast.length - i;
+  }
+
+  const sortByDeathsPast = _.sortBy(arrayPast, x => parseInt(x.deaths));
+  for (var j = sortByDeathsPast.length - 1; j >= 0; j--) {
+    deathRankingsPast[sortByDeathsPast[j].key] = sortByDeathsPast.length - j;
+  }
+
   return {
     caseRankings: caseRankings,
-    deathRankings: deathRankings
+    deathRankings: deathRankings,
+    caseRankingsPast: caseRankingsPast,
+    deathRankingsPast: deathRankingsPast
   };
 }
 

@@ -3,9 +3,9 @@ const countyProcessor = require('./county-processor');
 const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
 const covidCountyRawDb = require('./db/covid-county-raw-db');
-const covidReportWebsiteDb = require('./db/covid-report-website-db');
 const covidStateDb = require('./db/covid-state-db');
 const covidStateRawDb = require('./db/covid-state-raw-db');
+const covidWebsiteRankDb = require('./db/covid-website-rank-db');
 const dataChecker = require('./data-checker');
 const pcReader = require('./reader/postal-code-reader');
 const postalCodeUpdater = require('./postal-code-updater'); // eslint-disable-line no-unused-vars
@@ -91,6 +91,23 @@ async function main() {
       console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} county report chunks.`);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
+
+    const rankReportChunks = _.chunk(reportResults, 50);
+    const rankReportChunkLength = rankReportChunks.length;
+    for (var index in rankReportChunks) {
+      await covidWebsiteRankDb.batchWrite([
+        {
+          infoKey: 'countyRanking',
+          pageValue: `${index}`,
+          dataValue: {
+            reportDate: reportResults[0].currentDate,
+            rankByCases: rankReportChunks[index]
+          }
+        }
+      ]);
+      console.log(`Completed ${Number(index) + 1} out of ${rankReportChunkLength} county rank report chunks.`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
   }
 
   if (stateUpdates.length !== 0) {
@@ -105,15 +122,17 @@ async function main() {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    covidReportWebsiteDb.batchWrite([
+    await covidWebsiteRankDb.batchWrite([
       {
         infoKey: 'stateRanking',
+        pageValue: '0',
         dataValue: {
           reportDate: reportResults[0].currentDate,
           rankByCases: reportResults
         }
       }
     ]);
+    console.log('Completed state rank report');
   }
 }
 

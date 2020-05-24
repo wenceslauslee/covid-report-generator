@@ -1,6 +1,6 @@
 const db = require('./db-api');
 
-const tableName = 'covid-report-website-db';
+const tableName = 'covid-website-rank';
 
 function batchWrite(items) {
   const params = {
@@ -14,6 +14,7 @@ function batchWrite(items) {
       PutRequest: {
         Item: {
           infoKey: item.infoKey,
+          pageValue: item.pageValue,
           dataValue: item.dataValue
         }
       }
