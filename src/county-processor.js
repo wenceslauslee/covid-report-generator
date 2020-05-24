@@ -4,6 +4,8 @@ const usStateCodes = require('us-state-codes');
 const utils = require('./utils');
 const _ = require('underscore');
 
+const nyc_unique = '36005'; // Keep as unique county fips in NYC
+
 function getMostRecentUpdates(countyRawDataNew, censusData) {
   const today = moment.utc().format('YYYY-MM-DD');
   const pastDays = utils.getPastDays(today, '2020-03-01');
@@ -23,6 +25,16 @@ function getMostRecentUpdates(countyRawDataNew, censusData) {
   return sortedResults;
 }
 
+function getNYCDuplicates() {
+  return new Set(['36047', '36061', '36081', '36085']);
+}
+
+function filterNYCUpdates(results) {
+  const set = getNYCDuplicates();
+
+  return _.filter(results, r => !set.has(r.fips));
+}
+
 function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) {
   const results = utils.getUpToNthRecentUpdate(pastResults, pastDays, 2);
 
@@ -31,7 +43,7 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     return null;
   }
 
-  var stateNameShortProper = usStateCodes.sanitizeStateCode(results[0].state);
+  var stateNameShortProper = usStateCodes.getStateCodeByStateName(results[0].state);
   if (stateNameShortProper === null) {
     stateNameShortProper = '--';
   }
@@ -65,8 +77,13 @@ function rankCounties(countyRawDataNew, pastDays) {
 
   const array = [];
   const arrayPast = [];
+  const set = getNYCDuplicates();
 
   _.each(countyRawDataNew, (val, key) => {
+    if (set.has(key)) {
+      return;
+    }
+
     const results = utils.getUpToNthRecentUpdate(val, pastDays, 2);
     if (results.length === 2) {
       results[0].key = key;
@@ -96,6 +113,13 @@ function rankCounties(countyRawDataNew, pastDays) {
     deathRankingsPast[sortByDeathsPast[j].key] = sortByDeathsPast.length - j;
   }
 
+  for (let s of set) {
+    caseRankings[s] = caseRankings[nyc_unique];
+    deathRankings[s] = deathRankings[nyc_unique];
+    caseRankingsPast[s] = caseRankingsPast[nyc_unique];
+    deathRankingsPast[s] = deathRankingsPast[nyc_unique];
+  }
+
   return {
     caseRankings: caseRankings,
     deathRankings: deathRankings,
@@ -105,5 +129,6 @@ function rankCounties(countyRawDataNew, pastDays) {
 }
 
 module.exports = {
+  filterNYCUpdates: filterNYCUpdates,
   getMostRecentUpdates: getMostRecentUpdates
 };

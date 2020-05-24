@@ -79,7 +79,7 @@ async function main() {
   }
 
   if (countyUpdates.length !== 0) {
-    const reportResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
+    var reportResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
     console.log(`Found ${reportResults.length} updated county reports.`);
 
     dataChecker.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData);
@@ -92,6 +92,7 @@ async function main() {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
+    reportResults = countyProcessor.filterNYCUpdates(reportResults);
     const rankReportChunks = _.chunk(reportResults, 50);
     const rankReportChunkLength = rankReportChunks.length;
     for (var index in rankReportChunks) {
@@ -101,6 +102,7 @@ async function main() {
           pageValue: `${index}`,
           dataValue: {
             reportDate: reportResults[0].currentDate,
+            totalCount: reportResults.length,
             rankByCases: rankReportChunks[index]
           }
         }
@@ -128,6 +130,7 @@ async function main() {
         pageValue: '0',
         dataValue: {
           reportDate: reportResults[0].currentDate,
+          totalCount: reportResults.length,
           rankByCases: reportResults
         }
       }

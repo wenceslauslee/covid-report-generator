@@ -1,5 +1,6 @@
 const csv = require('csv-parser');
 const fs = require('fs');
+const _ = require('underscore');
 
 function parse() {
   return new Promise((resolve, reject) => {
@@ -27,6 +28,7 @@ function parse() {
       .on('end', () => {
         console.log(`Completed parsing ${Object.keys(results).length} rows of census data.`);
 
+        nycAdjustment(results);
         results.state = stateSum;
         resolve(results);
       })
@@ -34,6 +36,19 @@ function parse() {
         console.log(error);
         reject(error);
       });
+  });
+}
+
+function nycAdjustment(results) {
+  const exceptions = ['36005', '36047', '36061', '36081', '36085'];
+
+  var sum = 0;
+  _.each(exceptions, val => {
+    sum += results.county[val];
+  });
+
+  _.each(exceptions, val => {
+    results.county[val] = sum;
   });
 }
 
