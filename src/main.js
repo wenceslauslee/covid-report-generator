@@ -9,6 +9,7 @@ const covidWebsiteRankDb = require('./db/covid-website-rank-db');
 const dataChecker = require('./data-checker');
 const pcReader = require('./reader/postal-code-reader');
 const postalCodeUpdater = require('./postal-code-updater'); // eslint-disable-line no-unused-vars
+const stateCountyUpdater = require('./state-county-updater');
 const stateProcessor = require('./state-processor');
 const stateReader = require('./reader/state-reader');
 const _ = require('underscore');
@@ -110,6 +111,9 @@ async function main() {
       console.log(`Completed ${Number(index) + 1} out of ${rankReportChunkLength} county rank report chunks.`);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
+
+    await stateCountyUpdater.updateMapping(reportResults);
+    console.log('Completed state to county mapping.');
   }
 
   if (stateUpdates.length !== 0) {
@@ -135,7 +139,7 @@ async function main() {
         }
       }
     ]);
-    console.log('Completed state rank report');
+    console.log('Completed state rank report.');
   }
 }
 

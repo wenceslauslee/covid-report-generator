@@ -4,7 +4,7 @@ const usStateCodes = require('us-state-codes');
 const utils = require('./utils');
 const _ = require('underscore');
 
-const nyc_unique = '36005'; // Keep as unique county fips in NYC
+const nycUnique = '36005'; // Keep as unique county fips in NYC
 
 function getMostRecentUpdates(countyRawDataNew, censusData) {
   const today = moment.utc().format('YYYY-MM-DD');
@@ -113,11 +113,11 @@ function rankCounties(countyRawDataNew, pastDays) {
     deathRankingsPast[sortByDeathsPast[j].key] = sortByDeathsPast.length - j;
   }
 
-  for (let s of set) {
-    caseRankings[s] = caseRankings[nyc_unique];
-    deathRankings[s] = deathRankings[nyc_unique];
-    caseRankingsPast[s] = caseRankingsPast[nyc_unique];
-    deathRankingsPast[s] = deathRankingsPast[nyc_unique];
+  for (var s of set) {
+    caseRankings[s] = caseRankings[nycUnique];
+    deathRankings[s] = deathRankings[nycUnique];
+    caseRankingsPast[s] = caseRankingsPast[nycUnique];
+    deathRankingsPast[s] = deathRankingsPast[nycUnique];
   }
 
   return {
