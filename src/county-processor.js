@@ -64,7 +64,8 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
       deathCount: parseInt(results[0].deaths),
       deathRank: rankings.deathRankings[fips],
       deathRankPast: rankings.deathRankingsPast[fips],
-      activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[fips]).toFixed(2))
+      activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[fips]).toFixed(2)),
+      deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[fips]).toFixed(2))
     }
   };
 }
