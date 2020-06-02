@@ -33,6 +33,8 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
     stateNameFullProper = '-----';
   }
 
+  const dataPoints = generateDataPoints(pastResults);
+
   return {
     currentDate: results[0].date,
     pastDate: results[1].date,
@@ -50,8 +52,25 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
       deathRankPast: rankings.deathRankingsPast[stateNameFull],
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2)),
       deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[stateNameFull]).toFixed(2))
-    }
+    },
+    dataPoints: dataPoints
   };
+}
+
+function generateDataPoints(pastResults) {
+  var resultPoints = _.map(pastResults, (val, key) => {
+    const epoch = moment(`${key} 23:59:59`).unix();
+    return [epoch, val.cases, val.deaths];
+  });
+
+  resultPoints = _.sortBy(resultPoints, x => x[0]);
+
+  resultPoints[0].push(0);
+  for (var i = 1; i < resultPoints.length; i++) {
+    resultPoints[i].push(resultPoints[i][1] - resultPoints[i - 1][1]);
+  }
+
+  return resultPoints;
 }
 
 function rankStates(stateRawDataNew, pastDays) {

@@ -2,9 +2,7 @@ const censusReader = require('./reader/census-reader');
 const countyProcessor = require('./county-processor');
 const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
-const covidCountyRawDb = require('./db/covid-county-raw-db');
 const covidStateDb = require('./db/covid-state-db');
-const covidStateRawDb = require('./db/covid-state-raw-db');
 const covidWebsiteRankDb = require('./db/covid-website-rank-db');
 const dataChecker = require('./data-checker');
 const pcReader = require('./reader/postal-code-reader');
@@ -46,13 +44,6 @@ async function main() {
   countyUpdates = dataChecker.deduplicateArray(countyUpdates, v => v.fips);
   console.log(`Found ${countyUpdates.length} new raw county updates`);
 
-  const countyChunks = _.chunk(countyUpdates, 25);
-  for (var index in countyChunks) {
-    await covidCountyRawDb.batchWrite(countyChunks[index]);
-    console.log(`Completed ${Number(index) + 1} out of ${countyChunks.length} raw county update chunks.`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
   const stateUpdates = [];
   _.each(stateRawDataNew, (val, key) => {
     if (!Object.prototype.hasOwnProperty.call(stateRawDataOld, key)) {
@@ -71,13 +62,6 @@ async function main() {
     }
   });
   console.log(`Found ${stateUpdates.length} new raw state updates`);
-
-  const stateChunks = _.chunk(stateUpdates, 25);
-  for (var index in stateChunks) {
-    await covidStateRawDb.batchWrite(stateChunks[index]);
-    console.log(`Completed ${Number(index) + 1} out of ${stateChunks.length} raw update chunks.`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
 
   if (countyUpdates.length !== 0) {
     var reportResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
