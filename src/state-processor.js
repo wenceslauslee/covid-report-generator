@@ -59,8 +59,8 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
 
 function generateDataPoints(pastResults) {
   var resultPoints = _.map(pastResults, (val, key) => {
-    const epoch = moment(`${key} 23:59:59`).unix();
-    return [epoch, val.cases, val.deaths];
+    const epoch = (moment(`${key} 23:59:59`).unix() + 1) * 1000;
+    return [epoch, parseInt(val.cases), parseInt(val.deaths)];
   });
 
   resultPoints = _.sortBy(resultPoints, x => x[0]);
