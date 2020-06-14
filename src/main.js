@@ -1,13 +1,14 @@
 const censusReader = require('./reader/census-reader');
+const countyDataChecker = require('./county-data-checker');
 const countyProcessor = require('./county-processor');
 const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
 const covidStateDb = require('./db/covid-state-db');
 const covidWebsiteRankDb = require('./db/covid-website-rank-db');
-const dataChecker = require('./data-checker');
 const pcReader = require('./reader/postal-code-reader');
 const postalCodeUpdater = require('./postal-code-updater'); // eslint-disable-line no-unused-vars
 const stateCountyUpdater = require('./state-county-updater');
+const stateDataChecker = require('./state-data-checker');
 const stateProcessor = require('./state-processor');
 const stateReader = require('./reader/state-reader');
 const _ = require('underscore');
@@ -41,7 +42,7 @@ async function main() {
       });
     }
   });
-  countyUpdates = dataChecker.deduplicateArray(countyUpdates, v => v.fips);
+  countyUpdates = countyDataChecker.deduplicateArray(countyUpdates, v => v.fips);
   console.log(`Found ${countyUpdates.length} new raw county updates`);
 
   const stateUpdates = [];
@@ -67,7 +68,7 @@ async function main() {
     var reportResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
     console.log(`Found ${reportResults.length} updated county reports.`);
 
-    dataChecker.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData);
+    countyDataChecker.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData);
 
     const reportChunks = _.chunk(reportResults, 25);
     const reportChunkLength = reportChunks.length;
@@ -103,6 +104,8 @@ async function main() {
   if (stateUpdates.length !== 0) {
     const reportResults = stateProcessor.getMostRecentUpdates(stateRawDataNew, censusData.state);
     console.log(`Found ${reportResults.length} updated state reports.`);
+
+    stateDataChecker.printStatusReportOnNewUpdate(reportResults);
 
     const reportChunks = _.chunk(reportResults, 25);
     const reportChunkLength = reportChunks.length;

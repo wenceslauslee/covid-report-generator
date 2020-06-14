@@ -48,7 +48,7 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     stateNameShortProper = '--';
   }
 
-  const dataPoints = generateDataPoints(pastResults);
+  const dataPoints = generateDataPoints(pastResults, pastDays);
 
   return {
     currentDate: results[0].date,
@@ -73,13 +73,20 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
   };
 }
 
-function generateDataPoints(pastResults) {
-  var resultPoints = _.map(pastResults, (val, key) => {
-    const epoch = (moment(`${key} 23:59:59`).unix() + 1) * 1000;
-    return [epoch, parseInt(val.cases), parseInt(val.deaths)];
-  });
+function generateDataPoints(pastResults, pastDays) {
+  const resultPoints = [];
+  var lastDayCount = 0;
+  var lastDayDeath = 0;
 
-  resultPoints = _.sortBy(resultPoints, x => x[0]);
+  for (var i = pastDays.length - 1; i >= 0; i--) {
+    const epoch = (moment(`${pastDays[i]} 23:59:59`).unix() + 1) * 1000;
+    if (Object.prototype.hasOwnProperty.call(pastResults, pastDays[i])) {
+      const val = pastResults[pastDays[i]];
+      lastDayCount = parseInt(val.cases);
+      lastDayDeath = parseInt(val.deaths);
+    }
+    resultPoints.push([epoch, lastDayCount, lastDayDeath]);
+  }
 
   resultPoints[0].push(0);
   for (var i = 1; i < resultPoints.length; i++) {
