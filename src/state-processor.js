@@ -73,8 +73,10 @@ function generateDataPoints(pastResults, pastDays) {
   }
 
   resultPoints[0].push(0);
+  resultPoints[0].push(0);
   for (var i = 1; i < resultPoints.length; i++) {
     resultPoints[i].push(resultPoints[i][1] - resultPoints[i - 1][1]);
+    resultPoints[i].push(resultPoints[i][2] - resultPoints[i - 1][2]);
   }
 
   return resultPoints;
