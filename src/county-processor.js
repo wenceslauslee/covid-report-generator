@@ -58,11 +58,11 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     stateNameFull: results[0].state,
     stateNameShortProper: stateNameShortProper,
     detailedInfo: {
-      activeChange: parseInt(results[0].cases) - parseInt(results[1].cases),
+      activeChange: Math.max(parseInt(results[0].cases) - parseInt(results[1].cases), 0),
       activeCount: parseInt(results[0].cases),
       activeRank: rankings.caseRankings[fips],
       activeRankPast: rankings.caseRankingsPast[fips],
-      deathChange: parseInt(results[0].deaths) - parseInt(results[1].deaths),
+      deathChange: Math.max(parseInt(results[0].deaths) - parseInt(results[1].deaths), 0),
       deathCount: parseInt(results[0].deaths),
       deathRank: rankings.deathRankings[fips],
       deathRankPast: rankings.deathRankingsPast[fips],
@@ -78,7 +78,7 @@ function generateDataPoints(pastResults, pastDays) {
   var lastDayCount = 0;
   var lastDayDeath = 0;
 
-  for (var i = pastDays.length - 1; i >= 0; i--) {
+  for (var i = pastDays.length - 1; i > 0; i--) {
     const epoch = (moment(`${pastDays[i]} 23:59:59`).unix() + 1) * 1000;
     if (Object.prototype.hasOwnProperty.call(pastResults, pastDays[i])) {
       const val = pastResults[pastDays[i]];
@@ -91,8 +91,8 @@ function generateDataPoints(pastResults, pastDays) {
   resultPoints[0].push(0);
   resultPoints[0].push(0);
   for (var i = 1; i < resultPoints.length; i++) {
-    resultPoints[i].push(resultPoints[i][1] - resultPoints[i - 1][1]);
-    resultPoints[i].push(resultPoints[i][2] - resultPoints[i - 1][2]);
+    resultPoints[i].push(Math.max(resultPoints[i][1] - resultPoints[i - 1][1], 0));
+    resultPoints[i].push(Math.max(resultPoints[i][2] - resultPoints[i - 1][2], 0));
   }
 
   return resultPoints;
