@@ -82,6 +82,9 @@ async function main() {
     const rankReportChunks = _.chunk(reportResults, 50);
     const rankReportChunkLength = rankReportChunks.length;
     for (var index in rankReportChunks) {
+      _.each(reportResults, rr => {
+        delete rr.dataPoints;
+      });
       await covidWebsiteRankDb.batchWrite([
         {
           infoKey: 'countyRanking',
@@ -115,6 +118,9 @@ async function main() {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
+    _.each(reportResults, rr => {
+      delete rr.dataPoints;
+    });
     await covidWebsiteRankDb.batchWrite([
       {
         infoKey: 'stateRanking',
