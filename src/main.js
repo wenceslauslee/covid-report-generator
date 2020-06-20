@@ -11,6 +11,8 @@ const stateCountyUpdater = require('./state-county-updater');
 const stateDataChecker = require('./state-data-checker');
 const stateProcessor = require('./state-processor');
 const stateReader = require('./reader/state-reader');
+const usProcessor = require('./us-processor');
+const usReader = require('./reader/us-reader');
 const _ = require('underscore');
 
 async function main() {
@@ -21,6 +23,8 @@ async function main() {
   const countyRawDataNew = await countyReader.parse('data/us-counties.csv');
   const stateRawDataOld = await stateReader.parse('data/us-states-old.csv');
   const stateRawDataNew = await stateReader.parse('data/us-states.csv');
+  const usRawDataOld = await usReader.parse('data/us-old.csv');
+  const usRawDataNew = await usReader.parse('data/us.csv');
   const censusData = await censusReader.parse();
 
   // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
@@ -63,6 +67,19 @@ async function main() {
     }
   });
   console.log(`Found ${stateUpdates.length} new raw state updates`);
+
+  const usUpdates = [];
+  _.each(usRawDataNew, (val, key) => {
+    if (!Object.prototype.hasOwnProperty.call(usRawDataOld, key)) {
+      usUpdates.push(val);
+    } else {
+      const oldVal = usRawDataOld[key];
+      if (val.cases !== oldVal.cases || val.deaths !== oldVal.deaths) {
+        usUpdates.push(val);
+      }
+    }
+  });
+  console.log(`Found ${usUpdates.length} new us state updates`);
 
   if (countyUpdates.length !== 0) {
     var reportResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
@@ -132,6 +149,16 @@ async function main() {
         }
       }
     ]);
+    console.log('Completed state rank report.');
+  }
+
+  if (usUpdates.length !== 0) {
+    const reportResults = usProcessor.getMostRecentUpdates(usRawDataNew);
+    console.log(`Found ${reportResults.length} updated us reports.`);
+
+    await covidStateDb.batchWrite(reportResults);
+    console.log('Completed US report chunks.');
+    await new Promise(resolve => setTimeout(resolve, 500));
     console.log('Completed state rank report.');
   }
 }
