@@ -30,7 +30,8 @@ function getMostRecentUpdate(pastResults, pastDays) {
       deathChange: Math.max(parseInt(results[0].deaths) - parseInt(results[1].deaths), 0),
       deathCount: parseInt(results[0].deaths)
     },
-    dataPoints: dataPoints
+    dataPoints: dataPoints,
+    timestamp: moment.utc().format()
   };
 }
 

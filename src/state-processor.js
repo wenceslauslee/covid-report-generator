@@ -53,7 +53,8 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2)),
       deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[stateNameFull]).toFixed(2))
     },
-    dataPoints: dataPoints
+    dataPoints: dataPoints,
+    timestamp: moment.utc().format()
   };
 }
 

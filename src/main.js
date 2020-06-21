@@ -159,7 +159,6 @@ async function main() {
     await covidStateDb.batchWrite(reportResults);
     console.log('Completed US report chunks.');
     await new Promise(resolve => setTimeout(resolve, 500));
-    console.log('Completed state rank report.');
   }
 }
 

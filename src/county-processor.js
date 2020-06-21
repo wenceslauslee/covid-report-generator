@@ -69,7 +69,8 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[fips]).toFixed(2)),
       deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[fips]).toFixed(2))
     },
-    dataPoints: dataPoints
+    dataPoints: dataPoints,
+    timestamp: moment.utc().format()
   };
 }
 
