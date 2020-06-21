@@ -67,3 +67,6 @@ typings/
 .idea/*
 
 .DS_Store
+
+# Zip file for Lambda function upload
+covid-report-generator.zip
