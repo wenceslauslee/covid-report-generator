@@ -70,7 +70,7 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
       deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[fips]).toFixed(2))
     },
     dataPoints: dataPoints,
-    timestamp: moment.utc().format()
+    reportTimestamp: moment.utc().format()
   };
 }
 

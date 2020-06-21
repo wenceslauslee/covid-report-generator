@@ -109,7 +109,8 @@ async function main() {
           dataValue: {
             reportDate: reportResults[0].currentDate,
             totalCount: reportResults.length,
-            rankByCases: rankReportChunks[index]
+            rankByCases: rankReportChunks[index],
+            reportTimestamp: reportResults[0].reportTimestamp
           }
         }
       ]);
@@ -145,7 +146,8 @@ async function main() {
         dataValue: {
           reportDate: reportResults[0].currentDate,
           totalCount: reportResults.length,
-          rankByCases: reportResults
+          rankByCases: reportResults,
+          reportTimestamp: reportResults[0].reportTimestamp
         }
       }
     ]);
