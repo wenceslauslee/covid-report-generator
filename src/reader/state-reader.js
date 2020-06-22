@@ -1,11 +1,18 @@
+const AWS = require('aws-sdk');
 const csv = require('csv-parser');
-const fs = require('fs');
 
-function parse(filepath) {
+const s3 = new AWS.S3();
+
+function parse() {
+  const params = {
+    Bucket: 'whlee-covid-data',
+    Key: 'us-states.csv'
+  };
+
   return new Promise((resolve, reject) => {
     const results = {};
 
-    fs.createReadStream(filepath)
+    s3.getObject(params).createReadStream()
       .pipe(csv())
       .on('data', data => {
         if (data.date.length === 0 || data.state.length === 0 || data.cases.length === 0 || data.deaths.length === 0) {

@@ -19,14 +19,13 @@ async function main() {
   console.log('Starting to parse...');
 
   const countyToPostalCodes = await pcReader.parse();
-  const countyRawDataNew = await countyReader.parse('data/us-counties.csv');
-  const stateRawDataNew = await stateReader.parse('data/us-states.csv');
-  const usRawDataNew = await usReader.parse('data/us.csv');
+  const countyRawDataNew = await countyReader.parse();
+  const stateRawDataNew = await stateReader.parse();
+  const usRawDataNew = await usReader.parse();
   const censusData = await censusReader.parse();
 
   // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
   // County updates
-
   var reportResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
   console.log(`Found ${reportResults.length} updated county reports.`);
 
@@ -67,7 +66,6 @@ async function main() {
   console.log('Completed state to county mapping.');
 
   // State updates
-
   reportResults = stateProcessor.getMostRecentUpdates(stateRawDataNew, censusData.state);
   console.log(`Found ${reportResults.length} updated state reports.`);
 
@@ -99,7 +97,6 @@ async function main() {
   console.log('Completed state rank report.');
 
   // US updates
-
   reportResults = usProcessor.getMostRecentUpdates(usRawDataNew);
   console.log(`Found ${reportResults.length} updated us reports.`);
 

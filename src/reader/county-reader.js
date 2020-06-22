@@ -1,14 +1,20 @@
+const AWS = require('aws-sdk');
 const csv = require('csv-parser');
-const fs = require('fs');
 const _ = require('underscore');
 
-function parse(filepath) {
+const s3 = new AWS.S3();
+
+function parse() {
+  const params = {
+    Bucket: 'whlee-covid-data',
+    Key: 'us-counties.csv'
+  };
   const customMapping = getCustomMapping();
 
   return new Promise((resolve, reject) => {
     const results = {};
 
-    fs.createReadStream(filepath)
+    s3.getObject(params).createReadStream()
       .pipe(csv())
       .on('data', data => {
         var fips = [];
