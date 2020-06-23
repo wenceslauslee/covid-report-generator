@@ -48,7 +48,7 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     stateNameShortProper = '--';
   }
 
-  const dataPoints = generateDataPoints(pastResults, pastDays);
+  const dataPoints = utils.generateDataPoints(pastResults, pastDays, false);
 
   return {
     currentDate: results[0].date,
@@ -72,31 +72,6 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()
   };
-}
-
-function generateDataPoints(pastResults, pastDays) {
-  const resultPoints = [];
-  var lastDayCount = 0;
-  var lastDayDeath = 0;
-
-  for (var i = pastDays.length - 1; i > 0; i--) {
-    const epoch = (moment(`${pastDays[i]} 23:59:59`).unix() + 1) * 1000;
-    if (Object.prototype.hasOwnProperty.call(pastResults, pastDays[i])) {
-      const val = pastResults[pastDays[i]];
-      lastDayCount = parseInt(val.cases);
-      lastDayDeath = parseInt(val.deaths);
-    }
-    resultPoints.push([epoch, lastDayCount, lastDayDeath]);
-  }
-
-  resultPoints[0].push(0);
-  resultPoints[0].push(0);
-  for (var i = 1; i < resultPoints.length; i++) {
-    resultPoints[i].push(Math.max(resultPoints[i][1] - resultPoints[i - 1][1], 0));
-    resultPoints[i].push(Math.max(resultPoints[i][2] - resultPoints[i - 1][2], 0));
-  }
-
-  return resultPoints;
 }
 
 function rankCounties(countyRawDataNew, pastDays) {
