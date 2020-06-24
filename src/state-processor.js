@@ -33,7 +33,7 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
     stateNameFullProper = '-----';
   }
 
-  const dataPoints = utils.generateDataPoints(pastResults, pastDays, false);
+  const dataPoints = utils.generateDataPoints(pastResults, pastDays);
 
   return {
     currentDate: results[0].date,

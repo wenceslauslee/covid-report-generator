@@ -16,7 +16,7 @@ function getMostRecentUpdate(pastResults, pastDays) {
     return null;
   }
 
-  const dataPoints = utils.generateDataPoints(pastResults, pastDays, true);
+  const dataPoints = utils.generateDataPoints(pastResults, pastDays);
 
   return {
     currentDate: results[0].date,

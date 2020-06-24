@@ -48,7 +48,7 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     stateNameShortProper = '--';
   }
 
-  const dataPoints = utils.generateDataPoints(pastResults, pastDays, false);
+  const dataPoints = utils.generateDataPoints(pastResults, pastDays);
 
   return {
     currentDate: results[0].date,

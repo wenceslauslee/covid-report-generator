@@ -58,14 +58,6 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
   if (uncoveredCensusCounts > 0) {
     throw Error('Some counties do not have population count');
   }
-
-  var dataPointsLength = reportResults[0].dataPoints.length;
-  for (var i = 1; i < reportResults.length; i++) {
-    if (reportResults[i].dataPoints.length !== dataPointsLength) {
-      throw Error(`${reportResults[i].countyName}, ${reportResults[i].stateNameShortProper} data points does not ` +
-        `have the correct length (${reportResults[i].dataPoints.length}) of ${dataPointsLength}.`);
-    }
-  }
 }
 
 function deduplicateArray(results, fun) {

@@ -32,19 +32,16 @@ function getUpToNthRecentUpdate(data, pastDays, rank) {
   return result;
 }
 
-function generateDataPoints(pastResults, pastDays, skipDays) {
+function generateDataPoints(pastResults, pastDays) {
   const resultPoints = [];
   var lastDayCount = 0;
   var lastDayDeath = 0;
 
-  if (skipDays) {
-    while (!Object.prototype.hasOwnProperty.call(pastResults, pastDays[0])) {
-      pastDays.shift();
-    }
+  while (!Object.prototype.hasOwnProperty.call(pastResults, pastDays[0])) {
+    pastDays.shift();
   }
 
-  const endIndex = skipDays ? 0 : 1;
-  for (var i = pastDays.length - 1; i >= endIndex; i--) {
+  for (var i = pastDays.length - 1; i >= 0; i--) {
     const epoch = (moment(`${pastDays[i]} 23:59:59`).unix() + 1) * 1000;
     if (Object.prototype.hasOwnProperty.call(pastResults, pastDays[i])) {
       const val = pastResults[pastDays[i]];
