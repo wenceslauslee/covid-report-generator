@@ -37,7 +37,8 @@ function parse() {
           if (!Object.prototype.hasOwnProperty.call(customMapping, key)) {
             console.log(key);
             console.log(data);
-            throw Error('fips mapping is malformed');
+            return;
+            //throw Error('fips mapping is malformed');
           }
 
           fips = customMapping[key];
