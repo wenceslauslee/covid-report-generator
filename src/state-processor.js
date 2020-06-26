@@ -43,10 +43,12 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
     stateNameFullProper: stateNameFullProper,
     detailedInfo: {
       activeChange: Math.max(parseInt(results[0].cases) - parseInt(results[1].cases), 0),
+      liveActiveChange: Math.max(parseInt(pastResults.live.cases) - parseInt(results[0].cases), 0),
       activeCount: parseInt(results[0].cases),
       activeRank: rankings.caseRankings[stateNameFull],
       activeRankPast: rankings.caseRankingsPast[stateNameFull],
       deathChange: Math.max(parseInt(results[0].deaths) - parseInt(results[1].deaths), 0),
+      liveDeathChange: Math.max(parseInt(pastResults.live.deaths) - parseInt(results[0].deaths), 0),
       deathCount: parseInt(results[0].deaths),
       deathRank: rankings.deathRankings[stateNameFull],
       deathRankPast: rankings.deathRankingsPast[stateNameFull],

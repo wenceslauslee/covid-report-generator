@@ -21,11 +21,13 @@ async function main() {
 
   const countyToPostalCodes = await pcReader.parse();
   const countyRawDataNew = await countyReader.parse();
-  const stateRawDataNew = await stateReader.parse();
+  const stateRawDataNew = await stateReader.parse(false);
+  const stateRawDataLive = await stateReader.parse(true);
   const usRawDataNew = await usReader.parse(false);
   const usRawDataLive = await usReader.parse(true);
   const censusData = await censusReader.parse();
 
+  utils.mergeResults(stateRawDataNew, stateRawDataLive, 2);
   utils.mergeResults(usRawDataNew, usRawDataLive, 1);
 
   // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
