@@ -3,10 +3,11 @@ const csv = require('csv-parser');
 
 const s3 = new AWS.S3();
 
-function parse() {
+function parse(live) {
+  const key = live ? 'live/us.csv' : 'us.csv';
   const params = {
     Bucket: 'whlee-covid-data',
-    Key: 'us.csv'
+    Key: key
   };
 
   return new Promise((resolve, reject) => {

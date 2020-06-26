@@ -13,6 +13,7 @@ const stateProcessor = require('./state-processor');
 const stateReader = require('./reader/state-reader');
 const usProcessor = require('./us-processor');
 const usReader = require('./reader/us-reader');
+const utils = require('./utils');
 const _ = require('underscore');
 
 async function main() {
@@ -21,8 +22,11 @@ async function main() {
   const countyToPostalCodes = await pcReader.parse();
   const countyRawDataNew = await countyReader.parse();
   const stateRawDataNew = await stateReader.parse();
-  const usRawDataNew = await usReader.parse();
+  const usRawDataNew = await usReader.parse(false);
+  const usRawDataLive = await usReader.parse(true);
   const censusData = await censusReader.parse();
+
+  utils.mergeResults(usRawDataNew, usRawDataLive, 1);
 
   // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
   // County updates

@@ -51,4 +51,25 @@ describe('utils', () => {
       assert.strictEqual(results[1], 'a2');
     });
   });
+
+  describe('mergeResults', () => {
+    it(`should return correct values`, () => {
+      const resultsA = {
+        '2020-05-30': 'a1',
+        '2020-05-29': 'a2',
+        '2020-05-28': 'a3'
+      };
+      const resultsB = {
+        '2020-05-31': 'a4'
+      };
+
+      utils.mergeResults(resultsA, resultsB, 1);
+
+      assert.strictEqual(Object.keys(resultsA).length, 4);
+      assert.strictEqual(resultsA['2020-05-28'], 'a3');
+      assert.strictEqual(resultsA['2020-05-29'], 'a2');
+      assert.strictEqual(resultsA['2020-05-30'], 'a1');
+      assert.strictEqual(resultsA['live'], 'a4');
+    });
+  });
 });

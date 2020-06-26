@@ -27,8 +27,10 @@ function getMostRecentUpdate(pastResults, pastDays) {
     detailedInfo: {
       activeChange: Math.max(parseInt(results[0].cases) - parseInt(results[1].cases), 0),
       activeCount: parseInt(results[0].cases),
+      liveActiveChange: Math.max(parseInt(pastResults.live.cases) - parseInt(results[0].cases), 0),
       deathChange: Math.max(parseInt(results[0].deaths) - parseInt(results[1].deaths), 0),
-      deathCount: parseInt(results[0].deaths)
+      deathCount: parseInt(results[0].deaths),
+      liveDeathChange: Math.max(parseInt(pastResults.live.deaths) - parseInt(results[0].deaths), 0)
     },
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()

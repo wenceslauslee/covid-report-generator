@@ -83,8 +83,24 @@ function generateDataPoints(pastResults, pastDays) {
   return resultPoints;
 }
 
+// All results will go into A
+function mergeResults(resultsA, resultsB, level) {
+  const keys = Object.keys(resultsB);
+  for (const key of keys) {
+    if (level <= 1) {
+      resultsA.live = resultsB[key];
+    } else {
+      if (!Object.prototype.hasOwnProperty.call(resultsA, key)) {
+        continue;
+      }
+      mergeResults(resultsA[key], resultsB[key], level - 1);
+    }
+  }
+}
+
 module.exports = {
   generateDataPoints: generateDataPoints,
   getPastDays: getPastDays,
-  getUpToNthRecentUpdate: getUpToNthRecentUpdate
+  getUpToNthRecentUpdate: getUpToNthRecentUpdate,
+  mergeResults: mergeResults
 };

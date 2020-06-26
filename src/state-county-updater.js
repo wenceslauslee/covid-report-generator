@@ -9,34 +9,37 @@ async function updateMapping(reportResults) {
       resultsMap[val.stateNameFull] = [];
     }
 
-    resultsMap[val.stateNameFull].push({
-      name: val.countyName,
-      fips: val.fips
-    });
+    resultsMap[val.stateNameFull].push(val);
   });
 
-  const results = [];
+  const mappingResults = [];
   _.each(resultsMap, (val, key) => {
-    results.push({
+    const countiesCondensed = _.map(val, v => {
+      return {
+        name: v.countyName,
+        fips: v.fips
+      };
+    });
+    mappingResults.push({
       state: key,
-      counties: _.sortBy(val, x => x.name)
+      counties: _.sortBy(countiesCondensed, c => c.name)
     });
   });
 
-  const sortedResults = _.sortBy(results, x => x.state);
+  const sortedMappingResults = _.sortBy(mappingResults, x => x.state);
 
   await covidWebsiteRankDb.batchWrite([
     {
       infoKey: 'stateToCounty',
       pageValue: '0',
       dataValue: {
-        mappings: sortedResults
+        mappings: sortedMappingResults
       }
     }
   ]);
 
-  const reportChunks = _.chunk(sortedResults, 25);
-  const reportChunkLength = reportChunks.length;
+  var reportChunks = _.chunk(sortedMappingResults, 25);
+  var reportChunkLength = reportChunks.length;
   for (var index in reportChunks) {
     const modifiedChunks = _.map(reportChunks[index], val => {
       return {
@@ -49,6 +52,36 @@ async function updateMapping(reportResults) {
     });
     await covidWebsiteRankDb.batchWrite(modifiedChunks);
     console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} state to county mapping chunks.`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  const rankingResults = [];
+  _.each(resultsMap, (val, key) => {
+    var countiesByCount = _.sortBy(val, v => v.detailedInfo.activeCount);
+    countiesByCount.reverse();
+    rankingResults.push({
+      state: key,
+      counties: countiesByCount
+    });
+  });
+
+  reportChunks = _.chunk(rankingResults, 25);
+  reportChunkLength = reportChunks.length;
+  for (var index in reportChunks) {
+    const modifiedChunks = _.map(reportChunks[index], val => {
+      return {
+        infoKey: val.state.toLowerCase(),
+        pageValue: '1',
+        dataValue: {
+          reportDate: val.counties[0].currentDate,
+          totalCount: val.counties.length,
+          rankByCases: val.counties,
+          reportTimestamp: val.counties[0].reportTimestamp
+        }
+      };
+    });
+    await covidWebsiteRankDb.batchWrite(modifiedChunks);
+    console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} state to county ranking chunks.`);
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 }
