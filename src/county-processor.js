@@ -50,7 +50,7 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
 
   const dataPoints = utils.generateDataPoints(pastResults, pastDays);
 
-  return {
+  const result = {
     currentDate: results[0].date,
     pastDate: results[1].date,
     fips: fips,
@@ -72,6 +72,18 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()
   };
+
+  var liveActiveChange = 0;
+  var liveDeathChange = 0;
+  if (Object.prototype.hasOwnProperty.call(pastResults, 'live')) {
+    liveActiveChange = Math.max(parseInt(pastResults.live.cases) - parseInt(results[0].cases), 0);
+    liveDeathChange = Math.max(parseInt(pastResults.live.deaths) - parseInt(results[0].deaths), 0);
+  }
+
+  result.detailedInfo.liveActiveChange = liveActiveChange;
+  result.detailedInfo.liveDeathChange = liveDeathChange;
+
+  return result;
 }
 
 function rankCounties(countyRawDataNew, pastDays) {

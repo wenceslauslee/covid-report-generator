@@ -20,13 +20,15 @@ async function main() {
   console.log('Starting to parse...');
 
   const countyToPostalCodes = await pcReader.parse();
-  const countyRawDataNew = await countyReader.parse();
+  const countyRawDataNew = await countyReader.parse(false);
+  const countyRawDataLive = await countyReader.parse(true);
   const stateRawDataNew = await stateReader.parse(false);
   const stateRawDataLive = await stateReader.parse(true);
   const usRawDataNew = await usReader.parse(false);
   const usRawDataLive = await usReader.parse(true);
   const censusData = await censusReader.parse();
 
+  utils.mergeResults(countyRawDataNew, countyRawDataLive, 2);
   utils.mergeResults(stateRawDataNew, stateRawDataLive, 2);
   utils.mergeResults(usRawDataNew, usRawDataLive, 1);
 

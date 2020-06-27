@@ -4,10 +4,11 @@ const _ = require('underscore');
 
 const s3 = new AWS.S3();
 
-function parse() {
+function parse(live) {
+  const key = live ? 'live/us-counties.csv' : 'us-counties.csv';
   const params = {
     Bucket: 'whlee-covid-data',
-    Key: 'us-counties.csv'
+    Key: key
   };
   const customMapping = getCustomMapping();
 
@@ -19,10 +20,16 @@ function parse() {
       .on('data', data => {
         var fips = [];
 
-        if (data.date.length === 0 || data.state.length === 0 || data.cases.length === 0 || data.deaths.length === 0 ||
-          data.county.length === 0) {
+        if (data.date.length === 0 || data.state.length === 0 || data.county.length === 0) {
           console.log(data);
           throw Error('Data is malformed');
+        }
+
+        if (data.cases.length === 0) {
+          data.cases = '0';
+        }
+        if (data.deaths.length === 0) {
+          data.deaths = '0';
         }
 
         if (data.fips.length === 0) {
