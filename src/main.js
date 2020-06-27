@@ -34,8 +34,11 @@ async function main() {
 
   // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
   // County updates
-  var reportResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
+  const countyResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
+  var reportResults = countyResults.results;
+  var rankingResults = countyResults.resultsByStates;
   console.log(`Found ${reportResults.length} updated county reports.`);
+  console.log(`Found ${rankingResults.length} state to county ranking reports.`);
 
   countyDataChecker.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData);
 
@@ -67,6 +70,27 @@ async function main() {
       }
     ]);
     console.log(`Completed ${Number(index) + 1} out of ${rankReportChunkLength} county rank report chunks.`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  // Within state county rankings
+  reportChunks = _.chunk(rankingResults, 25);
+  reportChunkLength = reportChunks.length;
+  for (var index in reportChunks) {
+    const modifiedChunks = _.map(reportChunks[index], val => {
+      return {
+        infoKey: val.state.toLowerCase(),
+        pageValue: '1',
+        dataValue: {
+          reportDate: val.counties[0].currentDate,
+          totalCount: val.counties.length,
+          rankByCases: val.counties,
+          reportTimestamp: val.counties[0].reportTimestamp
+        }
+      };
+    });
+    await covidWebsiteRankDb.batchWrite(modifiedChunks);
+    console.log(`Completed ${Number(index) + 1} out of ${reportChunkLength} state to county ranking chunks.`);
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 

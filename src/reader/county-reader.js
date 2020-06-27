@@ -45,7 +45,7 @@ function parse(live) {
             console.log(key);
             console.log(data);
             return;
-            //throw Error('fips mapping is malformed');
+            // throw Error('fips mapping is malformed');
           }
 
           fips = customMapping[key];

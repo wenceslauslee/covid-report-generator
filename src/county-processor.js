@@ -19,10 +19,43 @@ function getMostRecentUpdates(countyRawDataNew, censusData) {
     }
   });
 
+  const resultsByStatesMap = {};
+  _.each(results, val => {
+    if (!Object.prototype.hasOwnProperty.call(resultsByStatesMap, val.stateNameFull)) {
+      resultsByStatesMap[val.stateNameFull] = [];
+    }
+
+    resultsByStatesMap[val.stateNameFull].push(val);
+  });
+
+  const rankCount = results.length;
+  const rankingResults = [];
+  _.each(resultsByStatesMap, (val, key) => {
+    const rankings = rankCountiesWithinState(val);
+    var countiesByCount = _.sortBy(val, v => v.detailedInfo.activeCount);
+    countiesByCount.reverse();
+    const localRankCount = countiesByCount.length;
+    _.each(countiesByCount, cc => {
+      cc.detailedInfo.localActiveRank = rankings.caseRankings[cc.fips];
+      cc.detailedInfo.localActiveRankPast = rankings.caseRankingsPast[cc.fips];
+      cc.detailedInfo.localDeathRank = rankings.caseRankings[cc.fips];
+      cc.detailedInfo.localDeathRankPast = rankings.caseRankingsPast[cc.fips];
+      cc.detailedInfo.localRankCount = localRankCount;
+      cc.detailedInfo.rankCount = rankCount;
+    });
+    rankingResults.push({
+      state: key,
+      counties: countiesByCount
+    });
+  });
+
   var sortedResults = _.sortBy(results, r => parseInt(r.detailedInfo.activeCount));
   sortedResults.reverse();
 
-  return sortedResults;
+  return {
+    resultsByStates: rankingResults,
+    results: sortedResults
+  };
 }
 
 function getNYCDuplicates() {
@@ -135,6 +168,42 @@ function rankCounties(countyRawDataNew, pastDays) {
     deathRankings[s] = deathRankings[nycUnique];
     caseRankingsPast[s] = caseRankingsPast[nycUnique];
     deathRankingsPast[s] = deathRankingsPast[nycUnique];
+  }
+
+  return {
+    caseRankings: caseRankings,
+    deathRankings: deathRankings,
+    caseRankingsPast: caseRankingsPast,
+    deathRankingsPast: deathRankingsPast
+  };
+}
+
+function rankCountiesWithinState(countyResults) {
+  const caseRankings = {};
+  const deathRankings = {};
+  const caseRankingsPast = {};
+  const deathRankingsPast = {};
+
+  const sortByCases = _.sortBy(countyResults, x => parseInt(x.detailedInfo.activeCount));
+  for (var i = sortByCases.length - 1; i >= 0; i--) {
+    caseRankings[sortByCases[i].fips] = sortByCases.length - i;
+  }
+
+  const sortByDeaths = _.sortBy(countyResults, x => parseInt(x.detailedInfo.deathCount));
+  for (var j = sortByDeaths.length - 1; j >= 0; j--) {
+    deathRankings[sortByDeaths[j].fips] = sortByDeaths.length - j;
+  }
+
+  const sortByCasesPast = _.sortBy(
+    countyResults, x => parseInt(x.detailedInfo.activeCount - x.detailedInfo.activeChange));
+  for (var i = sortByCasesPast.length - 1; i >= 0; i--) {
+    caseRankingsPast[sortByCasesPast[i].fips] = sortByCasesPast.length - i;
+  }
+
+  const sortByDeathsPast = _.sortBy(
+    countyResults, x => parseInt(x.detailedInfo.deathCount - x.detailedInfo.deathChange));
+  for (var j = sortByDeathsPast.length - 1; j >= 0; j--) {
+    deathRankingsPast[sortByDeathsPast[j].fips] = sortByDeathsPast.length - j;
   }
 
   return {
