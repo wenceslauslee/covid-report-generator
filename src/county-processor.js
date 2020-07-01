@@ -20,9 +20,14 @@ function getMostRecentUpdates(countyRawDataNew, censusData) {
   });
 
   const resultsByStatesMap = {};
+  const nycDuplicates = getNYCDuplicates();
   _.each(results, val => {
     if (!Object.prototype.hasOwnProperty.call(resultsByStatesMap, val.stateNameFull)) {
       resultsByStatesMap[val.stateNameFull] = [];
+    }
+
+    if (nycDuplicates.has(val.fips)) {
+      return;
     }
 
     resultsByStatesMap[val.stateNameFull].push(val);
