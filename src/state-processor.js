@@ -54,7 +54,8 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
       deathRankPast: rankings.deathRankingsPast[stateNameFull],
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2)),
       deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[stateNameFull]).toFixed(2)),
-      rankCount: Object.keys(rankings.caseRankings).length
+      rankCount: Object.keys(rankings.caseRankings).length,
+      population: censusData[stateNameFull]
     },
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()

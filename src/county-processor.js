@@ -105,7 +105,8 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
       deathRank: rankings.deathRankings[fips],
       deathRankPast: rankings.deathRankingsPast[fips],
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[fips]).toFixed(2)),
-      deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[fips]).toFixed(2))
+      deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[fips]).toFixed(2)),
+      population: censusData[fips]
     },
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()

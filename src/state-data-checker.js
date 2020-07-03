@@ -1,10 +1,20 @@
-function printStatusReportOnNewUpdate(reportResults) {
-  var dataPointsLength = reportResults[0].dataPoints.length;
-  for (var i = 1; i < reportResults.length; i++) {
-    if (reportResults[i].dataPoints.length !== dataPointsLength) {
-      throw Error(`${reportResults[i].stateNameFull} data points does not ` +
-        `have the correct length (${reportResults[i].dataPoints.length}) of ${dataPointsLength}.`);
+const _ = require('underscore');
+
+function printStatusReportOnNewUpdate(reportResults, censusData) {
+  var uncoveredCensusCounts = 0;
+  var countyStateReportCounts = 0;
+  _.each(reportResults, result => {
+    if (!Object.prototype.hasOwnProperty.call(censusData.state, result.stateNameFull)) {
+      console.log(`State ${result.stateNameFull} does not have census data.`);
+      uncoveredCensusCounts++;
     }
+    countyStateReportCounts++;
+  });
+
+  console.log(`${uncoveredCensusCounts} out of ${countyStateReportCounts} state reports have no percentage.`);
+
+  if (uncoveredCensusCounts > 0) {
+    throw Error('Some states do not have population count');
   }
 }
 

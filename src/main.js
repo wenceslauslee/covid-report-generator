@@ -98,10 +98,10 @@ async function main() {
   console.log('Completed state to county mapping.');
 
   // State updates
-  reportResults = stateProcessor.getMostRecentUpdates(stateRawDataNew, censusData.state);
+  reportResults = stateProcessor.getMostRecentUpdates(stateRawDataNew, censusData);
   console.log(`Found ${reportResults.length} updated state reports.`);
 
-  stateDataChecker.printStatusReportOnNewUpdate(reportResults);
+  stateDataChecker.printStatusReportOnNewUpdate(reportResults, censusData);
 
   reportChunks = _.chunk(reportResults, 25);
   reportChunkLength = reportChunks.length;

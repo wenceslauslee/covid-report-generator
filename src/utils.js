@@ -32,6 +32,13 @@ function getUpToNthRecentUpdate(data, pastDays, rank) {
   return result;
 }
 
+// [0] Time in epoch format
+// [1] Case count
+// [2] Death count
+// [3] Case count increase
+// [4] Death count increase
+// [5] Case count increase 7 day moving average
+// [6] Death count increase 7 day moving average
 function generateDataPoints(pastResults, pastDays) {
   const resultPoints = [];
   var lastDayCount = 0;

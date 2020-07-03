@@ -30,6 +30,7 @@ function parse() {
 
         nycAdjustment(results);
         results.state = stateSum;
+        islandAdjustment(results);
         resolve(results);
       })
       .on('error', error => {
@@ -50,6 +51,13 @@ function nycAdjustment(results) {
   _.each(exceptions, val => {
     results.county[val] = sum;
   });
+}
+
+function islandAdjustment(results) {
+  results.state['puerto rico'] = 2860090;
+  results.state['virgin islands'] = 104423;
+  results.state.guam = 168775;
+  results.state['northern mariana islands'] = 57563;
 }
 
 module.exports = {
