@@ -98,7 +98,7 @@ async function main() {
   console.log('Completed state to county mapping.');
 
   // State updates
-  reportResults = stateProcessor.getMostRecentUpdates(stateRawDataNew, censusData);
+  reportResults = stateProcessor.getMostRecentUpdates(stateRawDataNew, censusData.state);
   console.log(`Found ${reportResults.length} updated state reports.`);
 
   stateDataChecker.printStatusReportOnNewUpdate(reportResults, censusData);
