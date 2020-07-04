@@ -43,12 +43,13 @@ function generateDataPoints(pastResults, pastDays) {
   const resultPoints = [];
   var lastDayCount = 0;
   var lastDayDeath = 0;
+  var nonEmptyIndex = 0;
 
-  while (!Object.prototype.hasOwnProperty.call(pastResults, pastDays[0])) {
-    pastDays.shift();
+  while (!Object.prototype.hasOwnProperty.call(pastResults, pastDays[nonEmptyIndex])) {
+    nonEmptyIndex++;
   }
 
-  for (var i = pastDays.length - 1; i >= 0; i--) {
+  for (var i = pastDays.length - 1; i >= nonEmptyIndex; i--) {
     const epoch = (moment(`${pastDays[i]} 23:59:59`).unix() + 1) * 1000;
     if (Object.prototype.hasOwnProperty.call(pastResults, pastDays[i])) {
       const val = pastResults[pastDays[i]];
