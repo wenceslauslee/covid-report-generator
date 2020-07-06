@@ -34,6 +34,7 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
   }
 
   const dataPoints = utils.generateDataPoints(pastResults, pastDays);
+  const averageActiveChange = dataPoints[dataPoints.length - 1][5];
 
   return {
     currentDate: results[0].date,
@@ -55,7 +56,8 @@ function getMostRecentUpdate(stateNameFull, pastResults, pastDays, rankings, cen
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[stateNameFull]).toFixed(2)),
       deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[stateNameFull]).toFixed(2)),
       rankCount: Object.keys(rankings.caseRankings).length,
-      population: censusData[stateNameFull]
+      population: censusData[stateNameFull],
+      averageActiveChange: averageActiveChange
     },
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()

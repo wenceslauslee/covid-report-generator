@@ -121,6 +121,7 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
 
   result.detailedInfo.liveActiveChange = liveActiveChange;
   result.detailedInfo.liveDeathChange = liveDeathChange;
+  result.detailedInfo.averageActiveChange = dataPoints[dataPoints.length - 1][5];
 
   return result;
 }
