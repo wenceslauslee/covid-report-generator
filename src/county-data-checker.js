@@ -16,6 +16,7 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
   var countyStateReportCounts = 0;
   var coveredPostalCodeCounts = 0;
   var uncoveredCensusCounts = 0;
+  const uncoveredCensusSet = new Set();
   _.each(reportResults, result => {
     const currentDate = result.currentDate;
     if (Object.prototype.hasOwnProperty.call(dateLogs, currentDate)) {
@@ -31,6 +32,7 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
     reportSet.add(result.fips);
 
     if (!Object.prototype.hasOwnProperty.call(censusData.county, result.fips)) {
+      uncoveredCensusSet.add(result.fips);
       uncoveredCensusCounts++;
     }
   });
@@ -54,6 +56,7 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
   console.log(`${unreachableCountyStateCounts} out of ${countyStateCounts} county states have no data associated.`);
   console.log(unreachableCountyStateSet);
   console.log(`${uncoveredCensusCounts} out of ${countyStateReportCounts} county reports have no percentage.`);
+  console.log(uncoveredCensusSet);
 
   if (uncoveredCensusCounts > 0) {
     throw Error('Some counties do not have population count');

@@ -54,7 +54,6 @@ function nycAdjustment(results) {
 }
 
 function islandAdjustment(results) {
-  results.state['puerto rico'] = 2860090;
   results.state['virgin islands'] = 104423;
   results.state.guam = 168775;
   results.state['northern mariana islands'] = 57563;
