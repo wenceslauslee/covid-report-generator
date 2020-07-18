@@ -30,7 +30,9 @@ function getMostRecentUpdate(pastResults, pastDays) {
       liveActiveChange: Math.max(parseInt(pastResults.live.cases) - parseInt(results[0].cases), 0),
       deathChange: Math.max(parseInt(results[0].deaths) - parseInt(results[1].deaths), 0),
       deathCount: parseInt(results[0].deaths),
-      liveDeathChange: Math.max(parseInt(pastResults.live.deaths) - parseInt(results[0].deaths), 0)
+      liveDeathChange: Math.max(parseInt(pastResults.live.deaths) - parseInt(results[0].deaths), 0),
+      population: 331002651,
+      averageActiveChange: dataPoints[dataPoints.length - 1][5]
     },
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()
