@@ -54,7 +54,6 @@ function nycAdjustment(results) {
 }
 
 function islandAdjustment(results) {
-  results.state['virgin islands'] = 104423;
   results.state.guam = 168775;
 }
 
