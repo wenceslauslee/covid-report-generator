@@ -1,6 +1,6 @@
 const _ = require('underscore');
 
-function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData) {
+function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData, electionData) {
   var postalCodeCounts = 0;
   var countyStateCounts = 0;
   _.each(countyToPostalCodes, (val, key) => {
@@ -17,6 +17,9 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
   var coveredPostalCodeCounts = 0;
   var uncoveredCensusCounts = 0;
   const uncoveredCensusSet = new Set();
+  var uncoveredElectionCounts = 0;
+  const uncoveredElectionSet = new Set();
+  const ignoredElectionSet = new Set(['69', '72', '78']);
   _.each(reportResults, result => {
     const currentDate = result.currentDate;
     if (Object.prototype.hasOwnProperty.call(dateLogs, currentDate)) {
@@ -34,6 +37,14 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
     if (!Object.prototype.hasOwnProperty.call(censusData.county, result.fips)) {
       uncoveredCensusSet.add(result.fips);
       uncoveredCensusCounts++;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(electionData.county, result.fips)) {
+      const s = result.fips.substring(0, 2);
+      if (!ignoredElectionSet.has(s)) {
+        uncoveredElectionSet.add(result.fips);
+        uncoveredElectionCounts++;
+      }
     }
   });
 
@@ -57,6 +68,8 @@ function printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, census
   console.log(unreachableCountyStateSet);
   console.log(`${uncoveredCensusCounts} out of ${countyStateReportCounts} county reports have no percentage.`);
   console.log(uncoveredCensusSet);
+  console.log(`${uncoveredElectionCounts} out of ${countyStateReportCounts} county reports have no election results.`);
+  console.log(uncoveredElectionSet);
 
   if (uncoveredCensusCounts > 0) {
     throw Error('Some counties do not have population count');

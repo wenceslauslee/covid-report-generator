@@ -5,6 +5,7 @@ const countyReader = require('./reader/county-reader');
 const covidCountyDb = require('./db/covid-county-db');
 const covidStateDb = require('./db/covid-state-db');
 const covidWebsiteRankDb = require('./db/covid-website-rank-db');
+const electionReader = require('./reader/election-reader');
 const pcReader = require('./reader/postal-code-reader');
 const postalCodeUpdater = require('./postal-code-updater'); // eslint-disable-line no-unused-vars
 const stateCountyUpdater = require('./state-county-updater');
@@ -27,6 +28,7 @@ async function main() {
   const usRawDataNew = await usReader.parse(false);
   const usRawDataLive = await usReader.parse(true);
   const censusData = await censusReader.parse();
+  const electionData = await electionReader.parse();
 
   utils.mergeResults(countyRawDataNew, countyRawDataLive, 2);
   utils.mergeResults(stateRawDataNew, stateRawDataLive, 2);
@@ -34,13 +36,13 @@ async function main() {
 
   // await postalCodeUpdater.updatePostalCodesInDb(countyToPostalCodes, countyRawDataNew);
   // County updates
-  const countyResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county);
+  const countyResults = countyProcessor.getMostRecentUpdates(countyRawDataNew, censusData.county, electionData.county);
   var reportResults = countyResults.results;
   var rankingResults = countyResults.resultsByStates;
   console.log(`Found ${reportResults.length} updated county reports.`);
   console.log(`Found ${rankingResults.length} state to county ranking reports.`);
 
-  countyDataChecker.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData);
+  countyDataChecker.printStatusReportOnNewUpdate(countyToPostalCodes, reportResults, censusData, electionData);
 
   var reportChunks = _.chunk(reportResults, 25);
   var reportChunkLength = reportChunks.length;

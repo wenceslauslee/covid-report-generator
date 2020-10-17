@@ -42,8 +42,8 @@ function parse(live) {
           const key = `${county}|${state}`;
 
           if (!Object.prototype.hasOwnProperty.call(customMapping, key)) {
-            console.log(key);
-            console.log(data);
+            // console.log(key);
+            // console.log(data);
             return;
             // throw Error('fips mapping is malformed');
           }

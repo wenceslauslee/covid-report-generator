@@ -6,14 +6,14 @@ const _ = require('underscore');
 
 const nycUnique = '36005'; // Keep as unique county fips in NYC
 
-function getMostRecentUpdates(countyRawDataNew, censusData) {
+function getMostRecentUpdates(countyRawDataNew, censusData, electionData) {
   const today = moment.utc().format('YYYY-MM-DD');
   const pastDays = utils.getPastDays(today, '2020-03-01');
   const rankings = rankCounties(countyRawDataNew, pastDays);
   const results = [];
 
   _.each(countyRawDataNew, (val, key) => {
-    const result = getMostRecentUpdate(key, val, pastDays, rankings, censusData);
+    const result = getMostRecentUpdate(key, val, pastDays, rankings, censusData, electionData);
     if (result !== null) {
       results.push(result);
     }
@@ -73,7 +73,7 @@ function filterNYCUpdates(results) {
   return _.filter(results, r => !set.has(r.fips));
 }
 
-function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) {
+function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData, electionData) {
   const results = utils.getUpToNthRecentUpdate(pastResults, pastDays, 2);
 
   if (results.length !== 2) {
@@ -106,7 +106,8 @@ function getMostRecentUpdate(fips, pastResults, pastDays, rankings, censusData) 
       deathRankPast: rankings.deathRankingsPast[fips],
       activePercentage: removeZeros((parseInt(results[0].cases) * 100 / censusData[fips]).toFixed(2)),
       deathPercentage: removeZeros((parseInt(results[0].deaths) * 100 / censusData[fips]).toFixed(2)),
-      population: censusData[fips]
+      population: censusData[fips],
+      election: electionData[fips]
     },
     dataPoints: dataPoints,
     reportTimestamp: moment.utc().format()
