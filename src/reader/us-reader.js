@@ -3,7 +3,7 @@ const csv = require('csv-parser');
 
 const s3 = new AWS.S3();
 
-function parse(live) {
+function parse(live, startDate = '', endDate = '') {
   const key = live ? 'live/us.csv' : 'us.csv';
   const params = {
     Bucket: 'whlee-covid-data',
@@ -19,6 +19,11 @@ function parse(live) {
         if (data.date.length === 0 || data.cases.length === 0 || data.deaths.length === 0) {
           console.log(data);
           throw Error('Data is malformed');
+        }
+
+        if ((startDate !== '' && data.date < startDate) || (endDate !== '' && data.date > endDate)) {
+          // Ignore and skip parsing
+          return;
         }
 
         results[data.date] = data;

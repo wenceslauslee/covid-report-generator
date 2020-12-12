@@ -1,8 +1,8 @@
 const db = require('./db-api');
 
-const tableName = 'covid-county';
+const tableNameBase = 'covid-county';
 
-function batchWrite(items) {
+function batchWrite(items, suffix = '') {
   const params = {
     RequestItems: {}
   };
@@ -15,6 +15,11 @@ function batchWrite(items) {
         Item: item
       }
     });
+  }
+
+  var tableName = tableNameBase;
+  if (suffix !== '') {
+    tableName = tableName + '-' + suffix;
   }
 
   params.RequestItems[tableName] = requests;

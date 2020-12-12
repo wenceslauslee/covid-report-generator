@@ -4,7 +4,7 @@ const _ = require('underscore');
 
 const s3 = new AWS.S3();
 
-function parse(live) {
+function parse(live, startDate = '', endDate = '') {
   const key = live ? 'live/us-counties.csv' : 'us-counties.csv';
   const params = {
     Bucket: 'whlee-covid-data',
@@ -23,6 +23,11 @@ function parse(live) {
         if (data.date.length === 0 || data.state.length === 0 || data.county.length === 0) {
           console.log(data);
           throw Error('Data is malformed');
+        }
+
+        if ((startDate !== '' && data.date < startDate) || (endDate !== '' && data.date > endDate)) {
+          // Ignore and skip parsing
+          return;
         }
 
         if (data.cases.length === 0) {

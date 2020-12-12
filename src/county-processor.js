@@ -6,9 +6,9 @@ const _ = require('underscore');
 
 const nycUnique = '36005'; // Keep as unique county fips in NYC
 
-function getMostRecentUpdates(countyRawDataNew, censusData, electionData) {
+function getMostRecentUpdates(countyRawDataNew, censusData, electionData, pastDaysStart) {
   const today = moment.utc().format('YYYY-MM-DD');
-  const pastDays = utils.getPastDays(today, '2020-03-01');
+  const pastDays = utils.getPastDays(today, pastDaysStart);
   const rankings = rankCounties(countyRawDataNew, pastDays);
   const results = [];
 

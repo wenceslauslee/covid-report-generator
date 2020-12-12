@@ -1,9 +1,9 @@
 const moment = require('moment');
 const utils = require('./utils');
 
-function getMostRecentUpdates(usRawDataNew) {
+function getMostRecentUpdates(usRawDataNew, pastDaysStart) {
   const today = moment.utc().format('YYYY-MM-DD');
-  const pastDays = utils.getPastDays(today, '2020-03-01');
+  const pastDays = utils.getPastDays(today, pastDaysStart);
 
   return [getMostRecentUpdate(usRawDataNew, pastDays)];
 }

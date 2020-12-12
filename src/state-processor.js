@@ -4,9 +4,9 @@ const usStateCodes = require('us-state-codes');
 const utils = require('./utils');
 const _ = require('underscore');
 
-function getMostRecentUpdates(stateRawDataNew, censusData) {
+function getMostRecentUpdates(stateRawDataNew, censusData, pastDaysStart) {
   const today = moment.utc().format('YYYY-MM-DD');
-  const pastDays = utils.getPastDays(today, '2020-03-01');
+  const pastDays = utils.getPastDays(today, pastDaysStart);
   const rankings = rankStates(stateRawDataNew, pastDays);
   const results = [];
 
