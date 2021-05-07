@@ -9,7 +9,7 @@
     "remove-trailing-zeros": "^1.0.3",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
-    "underscore": "^1.10.2",
+    "underscore": "^1.12.1",
     "us-state-codes": "^1.1.2",
     "yargs": "^16.2.0"
   },
