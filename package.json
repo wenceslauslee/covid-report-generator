@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "aws-sdk": "^2.715.0",
+    "aws-sdk": "^2.814.0",
     "csv-parser": "^2.3.3",
     "moment": "^2.27.0",
     "remove-trailing-zeros": "^1.0.3",
