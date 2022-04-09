@@ -5,7 +5,7 @@
   "dependencies": {
     "aws-sdk": "^2.715.0",
     "csv-parser": "^2.3.3",
-    "moment": "^2.27.0",
+    "moment": "^2.29.2",
     "remove-trailing-zeros": "^1.0.3",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
